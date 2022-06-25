@@ -1,9 +1,4 @@
-on:
-  pull_request:
-    branches:
-      - main
-    paths-ignore:
-      - "**/*.md"
+on: push
 
 jobs:
   test:
