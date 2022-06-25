@@ -18,7 +18,7 @@ jobs:
       - name: Unit tests
         run: |
           sudo go test ./... -coverprofile coverage.txt
-          sudo go tool cover -func coverage.out
+          sudo go tool cover -func coverage.txt
           curl -Os https://uploader.codecov.io/latest/linux/codecov
           chmod +x codecov
           ./codecov
