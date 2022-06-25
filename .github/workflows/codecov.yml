@@ -12,6 +12,7 @@ jobs:
       - name: Setup GO environment
         run: |
           go mod download
+          go get -t .
 
 
       - name: Unit tests
