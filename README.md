@@ -66,5 +66,5 @@ func TestJson(t *testing.T) {
 ```
 
 # Features
-- [ ]Support syntax: `gjson.Get("glossary.title")`
-- [ ]Support arithmetic operators: `gjson.Get("glossary.age+long")`
+- [ ] Support syntax: `gjson.Get("glossary.title")`
+- [ ] Support arithmetic operators: `gjson.Get("glossary.age+long")`
