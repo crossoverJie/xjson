@@ -2,7 +2,9 @@ package benckmark
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/crossoverJie/gjson"
+	"github.com/stretchr/testify/assert"
 	"testing"
 )
 
@@ -141,4 +143,10 @@ func BenchmarkDecode(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		gjson.Decode(str)
 	}
+}
+
+func TestBig(t *testing.T) {
+	decode, err := gjson.Decode(str)
+	assert.Nil(t, err)
+	fmt.Println(decode)
 }

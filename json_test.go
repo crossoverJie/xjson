@@ -224,6 +224,7 @@ func TestDecode18(t *testing.T) {
    "glossary": {
        "title": "example glossary",
 		"age":1,
+		"long":99.99,
 		"GlossDiv": {
            "title": "S",
 			"GlossList": {
@@ -250,6 +251,7 @@ func TestDecode18(t *testing.T) {
 	glossary := v["glossary"].(map[string]interface{})
 	assert.Equal(t, glossary["title"], "example glossary")
 	assert.Equal(t, glossary["age"], 1)
+	assert.Equal(t, glossary["long"], 99.99)
 	glossDiv := glossary["GlossDiv"].(map[string]interface{})
 	assert.Equal(t, glossDiv["title"], "S")
 	glossList := glossDiv["GlossList"].(map[string]interface{})
@@ -278,6 +280,27 @@ func TestDecode19(t *testing.T) {
 	assert.Equal(t, (*v)[0], 1)
 	assert.Equal(t, (*v)[1], 2)
 }
+func TestDecode20(t *testing.T) {
+	str := `{"a":10,"b":10.9}`
+	parse, err := Decode(str)
+	assert.Nil(t, err)
+	fmt.Println(parse)
+	v := parse.(map[string]interface{})
+	assert.Equal(t, v["a"], 10)
+	assert.Equal(t, v["b"], 10.9)
+}
+func TestDecode21(t *testing.T) {
+	str := `{"a":10,"b":[20,21.1,22.2]}`
+	parse, err := Decode(str)
+	assert.Nil(t, err)
+	fmt.Println(parse)
+	v := parse.(map[string]interface{})
+	b := v["b"].(*[]interface{})
+	assert.Equal(t, v["a"], 10)
+	assert.Equal(t, (*b)[0], 20)
+	assert.Equal(t, (*b)[1], 21.1)
+	assert.Equal(t, (*b)[2], 22.2)
+}
 func TestDecodeErr1(t *testing.T) {
 	str := `{"e":tr"}`
 	_, err := Decode(str)
@@ -292,6 +315,12 @@ func TestDecodeErr2(t *testing.T) {
 }
 func TestDecodeErr3(t *testing.T) {
 	str := `{"e":true:"a":1}`
+	_, err := Decode(str)
+	assert.NotNil(t, err)
+	fmt.Println(err)
+}
+func TestDecodeErr4(t *testing.T) {
+	str := `{"a":10,"b":10.9.1}`
 	_, err := Decode(str)
 	assert.NotNil(t, err)
 	fmt.Println(err)

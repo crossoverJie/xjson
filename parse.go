@@ -2,6 +2,7 @@ package gjson
 
 import (
 	"errors"
+	"fmt"
 	"strconv"
 	"strings"
 )
@@ -80,7 +81,32 @@ func Parse(reader *TokenReader) (interface{}, error) {
 				statuses = []status{StatusComma, StatusEndArray}
 				continue
 			}
-			return nil, errors.New("invalid number")
+			return nil, errors.New("invalid int")
+		case Float:
+			// todo crossoverJie 优雅转为整形
+			value := strings.Trim(tokenType.Value, "\"")
+			if includeStatus(StatusObjectValue, statuses) {
+				i, err := strconv.ParseFloat(value, 64)
+				if err != nil {
+					return nil, errors.New(fmt.Sprintf("invalid float %s", err.Error()))
+				}
+				objectKey := s.Pop().ObjectKeyValue()
+				rootMap := s.Peek().ObjectValue()
+				rootMap[objectKey] = i
+				statuses = []status{StatusComma, StatusEndObject}
+				continue
+			}
+			if includeStatus(StatusArrayValue, statuses) {
+				i, err := strconv.ParseFloat(value, 64)
+				if err != nil {
+					return nil, errors.New(fmt.Sprintf("invalid float %s", err.Error()))
+				}
+				arrayValue := s.Peek().ArrayValuePoint()
+				*arrayValue = append(*arrayValue, i)
+				statuses = []status{StatusComma, StatusEndArray}
+				continue
+			}
+			return nil, errors.New("invalid int")
 		case True:
 			value := tokenType.Value
 			if includeStatus(StatusObjectValue, statuses) {

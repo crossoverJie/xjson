@@ -47,6 +47,14 @@ func TestToken4(t *testing.T) {
 		fmt.Printf("%s  %s\n", tokenType.T, tokenType.Value)
 	}
 }
+func TestToken5(t *testing.T) {
+	str := `{"k":"89","name":10.2}`
+	tokenize, err := Tokenize(str)
+	assert.Nil(t, err)
+	for _, tokenType := range tokenize {
+		fmt.Printf("%s  %s\n", tokenType.T, tokenType.Value)
+	}
+}
 
 func TestTokenErr(t *testing.T) {
 	str := `{"k":nul}`
@@ -82,4 +90,8 @@ func TestTokenErr(t *testing.T) {
 	str = `{"k":nul}`
 	_, err = Tokenize(str)
 	assert.NotNil(t, err)
+	str = `{"k":10.20.2}`
+	_, err = Tokenize(str)
+	assert.NotNil(t, err)
+	fmt.Println(err)
 }

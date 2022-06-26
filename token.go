@@ -15,6 +15,7 @@ const (
 	Null2             = "Null2"
 	Null3             = "Null3"
 	Number            = "Number"
+	Float             = "Float"
 	BeginString       = "BeginString"
 	EndString         = "EndString"
 	String            = "String"
@@ -82,11 +83,32 @@ func Tokenize(str string) ([]*TokenType, error) {
 			status, values = InitStatus(b, values)
 			break
 		case Number:
+			if b == '.' {
+				values = append(values, b)
+				status = Float
+				break
+			}
 			if isDigit(b) {
 				values = append(values, b)
 			} else {
 				t := &TokenType{
 					T:     Number,
+					Value: string(values),
+				}
+				result = append(result, t)
+				values = nil
+				status, values = InitStatus(b, values)
+				break
+			}
+		case Float:
+			if b == '.' {
+				return nil, errors.New("invalid float")
+			}
+			if isDigit(b) {
+				values = append(values, b)
+			} else {
+				t := &TokenType{
+					T:     Float,
 					Value: string(values),
 				}
 				result = append(result, t)
