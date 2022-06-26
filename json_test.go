@@ -1,6 +1,7 @@
 package gjson
 
 import (
+	"encoding/json"
 	"fmt"
 	"github.com/stretchr/testify/assert"
 	"testing"
@@ -70,6 +71,10 @@ func TestDecode6(t *testing.T) {
 	assert.Equal(t, m["b"], "b")
 	assert.Equal(t, m["c"], true)
 	assert.Equal(t, v["e"], "e")
+
+	indent, err := json.MarshalIndent(decode, "", "\t")
+	assert.Nil(t, err)
+	fmt.Println(string(indent))
 }
 func TestDecode66(t *testing.T) {
 	str := `{"age":{"a":"a"}, "e":"e"}`
@@ -305,4 +310,28 @@ func TestSlice2(t *testing.T) {
 	v2 := &arr2[len(arr2)-1]
 	*v2 = append(*v2, 2)
 	println(arr2)
+}
+
+func TestJsonIndent(t *testing.T) {
+	str := `[1,2,3]`
+	indent, err := json.MarshalIndent(str, "", "\t")
+	assert.Nil(t, err)
+	fmt.Println(string(indent))
+	str = `{"name":1,"obj":{"age":2,"b":2,"c":[1,2,3]}}`
+	var t1 T
+	err = json.Unmarshal([]byte(str), &t1)
+	assert.Nil(t, err)
+	fmt.Println(t1)
+	marshalIndent, err := json.MarshalIndent(&t1, "", "\t")
+	assert.Nil(t, err)
+	fmt.Println(string(marshalIndent))
+}
+
+type T struct {
+	Name int `json:"name"`
+	Obj  struct {
+		Age int   `json:"age"`
+		B   int   `json:"b"`
+		C   []int `json:"c"`
+	} `json:"obj"`
 }
