@@ -37,7 +37,7 @@ func TestJson(t *testing.T) {
        }
    }
 }`
-	decode, err := Decode(str)
+	decode, err := gjson.Decode(str)
 	assert.Nil(t, err)
 	fmt.Println(decode)
 	v := decode.(map[string]interface{})
