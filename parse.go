@@ -75,7 +75,6 @@ func Parse(reader *TokenReader) (interface{}, error) {
 				i, _ := strconv.Atoi(value)
 				arrayValue := s.Peek().ArrayValuePoint()
 				//arrayValue := s.Pop().ArrayValue()
-				// todo crossoverJie 直接写入不行？
 				*arrayValue = append(*arrayValue, i)
 				//s.Push(NewArray(arrayValue))
 				statuses = []status{StatusComma, StatusEndArray}

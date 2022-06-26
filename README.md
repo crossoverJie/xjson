@@ -64,3 +64,7 @@ func TestJson(t *testing.T) {
 	assert.Equal(t, glossEntry["GlossSee"], "markup")
 }
 ```
+
+# Features
+- [ ]Support syntax: `gjson.Get("glossary.title")`
+- [ ]Support arithmetic operators: `gjson.Get("glossary.age+long")`
