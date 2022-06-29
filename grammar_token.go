@@ -160,3 +160,7 @@ func (t *GrammarTokenReader) Read() *GrammarTokenType {
 	t.pos += 1
 	return tokenType
 }
+
+func (t *GrammarTokenReader) HasNext() bool {
+	return t.pos < uint64(len(t.tokens))
+}

@@ -7,7 +7,7 @@ import (
 )
 
 func TestGrammarToken(t *testing.T) {
-	grammar := `obj.name`
+	grammar := `obj`
 	tokenize, err := GrammarTokenize(grammar)
 	assert.Nil(t, err)
 	for _, tokenType := range tokenize {
@@ -81,4 +81,14 @@ func TestGrammarToken3(t *testing.T) {
 	assert.Equal(t, tokenize[6].Value, "10")
 	assert.Equal(t, tokenize[7].T, EndArrayIndex)
 	assert.Equal(t, tokenize[7].Value, "]")
+}
+func TestGrammarTokenReader(t *testing.T) {
+	grammar := `a.b.list[10]`
+	tokenize, err := GrammarTokenize(grammar)
+	assert.Nil(t, err)
+	reader := NewGrammarTokenReader(tokenize)
+	for reader.HasNext() {
+		read := reader.Read()
+		fmt.Printf("%s \t %s \n", read.T, read.Value)
+	}
 }

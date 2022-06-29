@@ -364,3 +364,23 @@ type T struct {
 		C   []int `json:"c"`
 	} `json:"obj"`
 }
+
+func TestJSONGet(t *testing.T) {
+	str := `{"name":"cj"}`
+	get := Get(str, "name")
+	assert.Equal(t, get.String(), "cj")
+}
+func TestJSONGet2(t *testing.T) {
+	str := `{"obj":{"name":"cj","age":"10","str":10}}`
+	name := Get(str, "obj.name")
+	assert.Equal(t, name.String(), "cj")
+
+	age := Get(str, "obj.age")
+	assert.Equal(t, age.String(), "10")
+
+	i := Get(str, "obj.str")
+	assert.Equal(t, i.Int(), 10)
+
+	i = Get(str, "obj.str")
+	assert.Equal(t, i.String(), "10")
+}
