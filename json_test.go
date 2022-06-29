@@ -371,16 +371,54 @@ func TestJSONGet(t *testing.T) {
 	assert.Equal(t, get.String(), "cj")
 }
 func TestJSONGet2(t *testing.T) {
-	str := `{"obj":{"name":"cj","age":"10","str":10}}`
+	str := `{"obj":{"name":"cj","age":"10","int":10}, "obj_list":[{"name":"cj"},{"age":10}]}, "list":[1,2,3]`
 	name := Get(str, "obj.name")
 	assert.Equal(t, name.String(), "cj")
 
 	age := Get(str, "obj.age")
 	assert.Equal(t, age.String(), "10")
 
-	i := Get(str, "obj.str")
+	i := Get(str, "obj.int")
 	assert.Equal(t, i.Int(), 10)
 
-	i = Get(str, "obj.str")
+	i = Get(str, "obj.int")
 	assert.Equal(t, i.String(), "10")
+
+	i = Get(str, "obj.")
+	assert.Equal(t, i.String(), "")
+
+	i = Get(str, "obj")
+	m := i.Object().(map[string]interface{})
+	assert.Equal(t, m["name"], "cj")
+	assert.Equal(t, m["age"], "10")
+	assert.Equal(t, m["int"], 10)
+
+	obj := Get(str, "obj_list")
+	fmt.Println(obj)
+
+	name = Get(str, "obj_list[0].name")
+	assert.Equal(t, name.String(), "cj")
+
+	age = Get(str, "obj_list[1].age")
+	assert.Equal(t, age.Int(), 10)
+
+	list := Get(str, "list[0]")
+	assert.Equal(t, list.Int(), 1)
+	list = Get(str, "list[1]")
+	assert.Equal(t, list.Int(), 2)
+	list = Get(str, "list[2]")
+	assert.Equal(t, list.Int(), 3)
+}
+
+func TestJSONGet3(t *testing.T) {
+	str := `{"obj_list":[{"name":"cj"},{"age":10}]}`
+	obj := Get(str, "obj_list")
+	fmt.Println(obj)
+
+	name := Get(str, "obj_list[0].name")
+	assert.Equal(t, name.String(), "cj")
+
+	age := Get(str, "obj_list[1].age")
+	assert.Equal(t, age.Int(), 10)
+
 }

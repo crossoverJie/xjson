@@ -6,8 +6,9 @@ import (
 )
 
 const (
-	JSONObject Token = "JSONObject"
-	Bool             = "Bool"
+	JSONObject  Token = "JSONObject"
+	Bool              = "Bool"
+	ArrayObject       = "ArrayObject"
 )
 
 type Result struct {
@@ -41,7 +42,7 @@ func Get(json, grammar string) Result {
 		return buildEmptyResult()
 	}
 	reader := NewGrammarTokenReader(tokenize)
-	status := Key
+	statuses := []GrammarToken{Key}
 	result := Result{
 		Token: JSONObject,
 		//Raw:    "",
@@ -51,44 +52,77 @@ func Get(json, grammar string) Result {
 		read := reader.Read()
 		switch read.T {
 		case Key:
-			if status != Key {
+			if notIncludeGrammarToken(Key, statuses) {
 				return buildEmptyResult()
 			}
-			m, ok := result.object.(map[string]interface{})
-			if !ok {
-				return buildEmptyResult()
-			}
-			v, ok := m[read.Value]
-			var token Token
-			switch v.(type) {
-			case string:
-				token = String
-			case int:
-				token = Number
-			case float64:
-				token = Float
-			case bool:
-				token = Bool
+			var (
+				m     map[string]interface{}
+				a     *[]interface{}
+				v     interface{}
+				token Token
+			)
+			switch result.object.(type) {
 			case map[string]interface{}:
-				token = JSONObject
+				m = result.object.(map[string]interface{})
+			case *[]interface{}:
+				a = result.object.(*[]interface{})
 			}
-			if !ok {
+
+			if m != nil {
+				v, ok = m[read.Value]
+				token = typeOfToken(v)
+				if !ok {
+					return buildEmptyResult()
+				}
+			} else if a != nil {
+				v = a
+			} else {
 				return buildEmptyResult()
 			}
+
 			result = Result{
 				Token: token,
 				//Raw:   v,
 				object: v,
 			}
-			status = Dot
+			statuses = []GrammarToken{Dot, BeginArrayIndex}
 			break
-		case Dot:
-			if status != Dot {
+		case BeginArrayIndex:
+			if notIncludeGrammarToken(BeginArrayIndex, statuses) {
 				return buildEmptyResult()
 			}
-			status = Key
+			statuses = []GrammarToken{Dot, ArrayIndex}
+		case ArrayIndex:
+			if notIncludeGrammarToken(ArrayIndex, statuses) {
+				return buildEmptyResult()
+			}
+			a := result.object.(*[]interface{})
+			index, _ := strconv.Atoi(read.Value)
+			v := (*a)[index]
+			token := typeOfToken(v)
+			result = Result{
+				Token: token,
+				//Raw:   v,
+				object: v,
+			}
+			statuses = []GrammarToken{EndArrayIndex}
+		case EndArrayIndex:
+			if notIncludeGrammarToken(EndArrayIndex, statuses) {
+				return buildEmptyResult()
+			}
+			statuses = []GrammarToken{Dot}
+
+		case Dot:
+			if notIncludeGrammarToken(Dot, statuses) {
+				return buildEmptyResult()
+			}
+			statuses = []GrammarToken{Key}
 
 		case EOF:
+			if includeGrammarToken(Key, statuses) {
+				// syntax error
+				return buildEmptyResult()
+			}
 			return result
 
 		}
@@ -113,6 +147,10 @@ func (r *Result) String() string {
 		i, _ := strconv.ParseFloat(fmt.Sprint(r.object), 64)
 		return fmt.Sprintf("%f", i)
 	case JSONObject:
+		// todo crossoverJie toJSONString
+		return fmt.Sprint(r.object)
+	case ArrayObject:
+		// todo crossoverJie toJSONString
 		return fmt.Sprint(r.object)
 	default:
 		return ""
@@ -141,6 +179,68 @@ func (r Result) Int() int {
 	}
 }
 
+func (r Result) Float() float64 {
+	switch r.Token {
+	case String:
+		v, _ := strconv.ParseFloat(fmt.Sprint(r.object), 64)
+		return v
+	case True:
+		return 1
+	case False:
+		return 0
+	case Null:
+		return 0
+	case Number:
+		v, _ := strconv.Atoi(fmt.Sprint(r.object))
+		return float64(v)
+	case Float:
+		v, _ := strconv.ParseFloat(fmt.Sprint(r.object), 64)
+		return v
+	default:
+		return 0
+	}
+}
+
+func (r Result) Object() interface{} {
+	return r.object
+}
+
 func buildEmptyResult() Result {
 	return Result{}
+}
+
+func includeGrammarToken(status GrammarToken, statuses []GrammarToken) bool {
+	for _, s := range statuses {
+		if status == s {
+			return true
+		}
+	}
+	return false
+}
+
+func notIncludeGrammarToken(status GrammarToken, statuses []GrammarToken) bool {
+	for _, s := range statuses {
+		if status == s {
+			return false
+		}
+	}
+	return true
+}
+
+func typeOfToken(v interface{}) (token Token) {
+	switch v.(type) {
+	case string:
+		token = String
+	case int:
+		token = Number
+	case float64:
+		token = Float
+	case bool:
+		token = Bool
+	case map[string]interface{}:
+		token = JSONObject
+	case *[]interface{}:
+		token = ArrayObject
+	}
+	return
 }
