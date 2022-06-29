@@ -8,3 +8,11 @@ func Decode(input string) (interface{}, error) {
 	reader := NewTokenReader(tokenize)
 	return Parse(reader)
 }
+
+func GetString(json, grammar string) string {
+	_, err := Decode(json)
+	if err != nil {
+		return ""
+	}
+	return ""
+}
