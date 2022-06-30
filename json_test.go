@@ -371,7 +371,39 @@ func TestJSONGet(t *testing.T) {
 	assert.Equal(t, get.String(), "cj")
 }
 func TestJSONGet2(t *testing.T) {
-	str := `{"obj":{"name":"cj","age":"10","int":10}, "obj_list":[{"name":"cj"},{"age":10}]}, "list":[1,2,3]`
+	str := `{
+    "obj": {
+        "name": "cj",
+        "age": "10",
+        "int": 10
+    },
+    "obj_list": [
+        {
+            "name": "cj"
+        },
+        {
+            "age": 10
+        }
+    ],
+    "list": [
+        1,
+        2,
+        3
+    ],
+    "list2": {
+        "obj2": [
+            {
+                "obj3": {
+                    "list3": [
+                        true,
+                        false,
+                        null
+                    ]
+                }
+            }
+        ]
+    }
+}`
 	name := Get(str, "obj.name")
 	assert.Equal(t, name.String(), "cj")
 
@@ -408,6 +440,16 @@ func TestJSONGet2(t *testing.T) {
 	assert.Equal(t, list.Int(), 2)
 	list = Get(str, "list[2]")
 	assert.Equal(t, list.Int(), 3)
+
+	list = Get(str, "list2.obj2[0].obj3.list3[0]")
+	assert.Equal(t, list.String(), "true")
+	assert.Equal(t, list.Bool(), true)
+
+	list = Get(str, "list2.obj2[0].obj3.list3[1]")
+	assert.Equal(t, list.Bool(), false)
+
+	list = Get(str, "list2.obj2[0].obj3.list3[2]")
+	assert.Equal(t, list.Bool(), false)
 }
 
 func TestJSONGet3(t *testing.T) {

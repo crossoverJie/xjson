@@ -3,6 +3,7 @@ package gjson
 import (
 	"fmt"
 	"strconv"
+	"strings"
 )
 
 const (
@@ -134,10 +135,8 @@ func (r *Result) String() string {
 	switch r.Token {
 	case String:
 		return fmt.Sprint(r.object)
-	case True:
-		return "true"
-	case False:
-		return "false"
+	case Bool:
+		return fmt.Sprint(r.object)
 	case Null:
 		return ""
 	case Number:
@@ -154,6 +153,24 @@ func (r *Result) String() string {
 		return fmt.Sprint(r.object)
 	default:
 		return ""
+	}
+}
+
+func (r Result) Bool() bool {
+	switch r.Token {
+	case String:
+		v, _ := strconv.ParseBool(strings.ToLower(fmt.Sprint(r.object)))
+		return v
+	case Bool:
+		v, _ := strconv.ParseBool(strings.ToLower(fmt.Sprint(r.object)))
+		return v
+	case Null:
+		return false
+	case Number:
+		v, _ := strconv.Atoi(fmt.Sprint(r.object))
+		return v != 0
+	default:
+		return false
 	}
 }
 
