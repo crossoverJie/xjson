@@ -337,13 +337,6 @@ func NewTokenReader(tokens []*TokenType) *TokenReader {
 	return &TokenReader{tokens: tokens, pos: 0}
 }
 
-func (t *TokenReader) Peek() *TokenType {
-	if int(t.pos) >= len(t.tokens) {
-		return nil
-	}
-	return t.tokens[t.pos]
-}
-
 func (t *TokenReader) Read() *TokenType {
 	if int(t.pos) >= len(t.tokens) {
 		return &TokenType{
@@ -353,20 +346,4 @@ func (t *TokenReader) Read() *TokenType {
 	tokenType := t.tokens[t.pos]
 	t.pos += 1
 	return tokenType
-}
-
-func (t *TokenReader) UnRead() {
-	if t.pos > 0 {
-		t.pos -= 1
-	}
-}
-
-func (t *TokenReader) GetPos() uint64 {
-	return t.pos
-}
-
-func (t *TokenReader) SetPos(pos uint64) {
-	if pos >= 0 && int(pos) < len(t.tokens) {
-		t.pos = pos
-	}
 }

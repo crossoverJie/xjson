@@ -2,6 +2,7 @@ package gjson
 
 import (
 	"fmt"
+	"github.com/crossoverJie/gscript/syntax"
 	"strconv"
 	"strings"
 )
@@ -38,6 +39,11 @@ func Get(json, grammar string) Result {
 		return buildEmptyResult()
 	}
 
+	return getWithMap(root, grammar)
+
+}
+
+func getWithMap(root map[string]interface{}, grammar string) Result {
 	tokenize, err := GrammarTokenize(grammar)
 	if err != nil {
 		return buildEmptyResult()
@@ -61,6 +67,7 @@ func Get(json, grammar string) Result {
 				a     *[]interface{}
 				v     interface{}
 				token Token
+				ok    bool
 			)
 			switch result.object.(type) {
 			case map[string]interface{}:
@@ -128,7 +135,59 @@ func Get(json, grammar string) Result {
 
 		}
 	}
+}
 
+func GetWithArithmetic(json, arithmetic string) Result {
+	tokenize, err := ArithmeticTokenize(arithmetic)
+	if err != nil {
+		return buildEmptyResult()
+	}
+
+	decode, err := Decode(json)
+	if err != nil {
+		return buildEmptyResult()
+	}
+	root, ok := decode.(map[string]interface{})
+	if !ok {
+		return buildEmptyResult()
+	}
+
+	reader := NewArithmeticTokenReader(tokenize)
+	var builder strings.Builder
+	for {
+		read := reader.Read()
+		switch read.T {
+		case Identifier:
+			result := getWithMap(root, read.Value)
+			switch result.Token {
+			case Number:
+				builder.WriteString(fmt.Sprintf("%d", result.Int()))
+			case Float:
+				builder.WriteString(fmt.Sprintf("%f", result.Float()))
+			default:
+				return buildEmptyResult()
+			}
+		case ArithmeticEOF:
+			builder.WriteString("\n")
+			r := syntax.ArithmeticOperators(builder.String())
+			switch r.(type) {
+			case int:
+				return Result{
+					Token:  Number,
+					object: r,
+				}
+			case float64:
+				return Result{
+					Token:  Float,
+					object: r,
+				}
+			}
+		default:
+			builder.WriteString(read.Value)
+		}
+	}
+
+	//return Result{}
 }
 
 func (r *Result) String() string {
@@ -137,8 +196,8 @@ func (r *Result) String() string {
 		return fmt.Sprint(r.object)
 	case Bool:
 		return fmt.Sprint(r.object)
-	case Null:
-		return ""
+	//case Null:
+	//	return ""
 	case Number:
 		i, _ := strconv.Atoi(fmt.Sprint(r.object))
 		return fmt.Sprintf("%d", i)
@@ -164,8 +223,6 @@ func (r Result) Bool() bool {
 	case Bool:
 		v, _ := strconv.ParseBool(strings.ToLower(fmt.Sprint(r.object)))
 		return v
-	case Null:
-		return false
 	case Number:
 		v, _ := strconv.Atoi(fmt.Sprint(r.object))
 		return v != 0
@@ -182,8 +239,6 @@ func (r Result) Int() int {
 	case True:
 		return 1
 	case False:
-		return 0
-	case Null:
 		return 0
 	case Number:
 		v, _ := strconv.Atoi(fmt.Sprint(r.object))
@@ -204,8 +259,6 @@ func (r Result) Float() float64 {
 	case True:
 		return 1
 	case False:
-		return 0
-	case Null:
 		return 0
 	case Number:
 		v, _ := strconv.Atoi(fmt.Sprint(r.object))

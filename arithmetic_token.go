@@ -11,6 +11,7 @@ const (
 	LeftParen                      = "LeftParen"
 	RightParen                     = "RightParen"
 	Identifier                     = "Identifier"
+	ArithmeticEOF                  = "EOF"
 )
 
 type ArithmeticTokenType struct {
@@ -140,4 +141,24 @@ func IsArithmetic(b byte) bool {
 
 func IsLetter(b byte) bool {
 	return b >= 65 && b <= 122
+}
+
+type ArithmeticTokenReader struct {
+	tokens []*ArithmeticTokenType
+	pos    uint64
+}
+
+func NewArithmeticTokenReader(tokens []*ArithmeticTokenType) *ArithmeticTokenReader {
+	return &ArithmeticTokenReader{tokens: tokens, pos: 0}
+}
+
+func (t *ArithmeticTokenReader) Read() *ArithmeticTokenType {
+	if int(t.pos) >= len(t.tokens) {
+		return &ArithmeticTokenType{
+			T: ArithmeticEOF,
+		}
+	}
+	tokenType := t.tokens[t.pos]
+	t.pos += 1
+	return tokenType
 }

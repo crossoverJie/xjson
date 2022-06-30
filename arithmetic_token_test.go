@@ -13,4 +13,31 @@ func TestArithmeticTokenize(t *testing.T) {
 	for _, tokenType := range tokenize {
 		fmt.Printf("%s  %s\n", tokenType.T, tokenType.Value)
 	}
+
+	str = "name+age"
+	tokenize, err = ArithmeticTokenize(str)
+	assert.Nil(t, err)
+	for _, tokenType := range tokenize {
+		fmt.Printf("%s  %s\n", tokenType.T, tokenType.Value)
+	}
+}
+
+func TestGetWithArithmetic(t *testing.T) {
+	str := `{"name":"cj", "age":10,"f":10.1, "obj":{"x":[1,2]}}`
+	result := GetWithArithmetic(str, "(age+age)*age+f")
+	assert.Equal(t, result.Float(), 210.1)
+	result = GetWithArithmetic(str, "(age+age)*age")
+	assert.Equal(t, result.Int(), 200)
+
+	result = GetWithArithmetic(str, "(age+age) * age + obj.x[0]")
+	assert.Equal(t, result.Int(), 201)
+
+	result = GetWithArithmetic(str, "(age+age) * age - obj.x[0]")
+	assert.Equal(t, result.Int(), 199)
+}
+
+func TestGetWithArithmetic2(t *testing.T) {
+	str := `{"name":[}`
+	x := GetWithArithmetic(str, "x")
+	assert.Equal(t, x.String(), "")
 }

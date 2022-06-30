@@ -369,6 +369,14 @@ func TestJSONGet(t *testing.T) {
 	str := `{"name":"cj"}`
 	get := Get(str, "name")
 	assert.Equal(t, get.String(), "cj")
+
+	str = `{"name":"cj}`
+	get = Get(str, "name")
+	assert.Equal(t, get.String(), "")
+
+	str = `[1,2]`
+	get = Get(str, "name")
+	assert.Equal(t, get.String(), "")
 }
 func TestJSONGet2(t *testing.T) {
 	str := `{
@@ -397,7 +405,8 @@ func TestJSONGet2(t *testing.T) {
                     "list3": [
                         true,
                         false,
-                        null
+                        null,
+						10.1
                     ]
                 }
             }
@@ -450,6 +459,14 @@ func TestJSONGet2(t *testing.T) {
 
 	list = Get(str, "list2.obj2[0].obj3.list3[2]")
 	assert.Equal(t, list.Bool(), false)
+	assert.Equal(t, list.String(), "")
+
+	list = Get(str, "list2.obj2[0].obj3.list3[3]")
+	assert.Equal(t, list.String(), "10.100000")
+	list = Get(str, "list2")
+	fmt.Println(list.String())
+	list = Get(str, "list2.obj2[0].obj3.list3")
+	fmt.Println(list.String())
 
 	assert.Equal(t, list.Exists(), true)
 	exist := Get(str, "abc")
@@ -466,5 +483,9 @@ func TestJSONGet3(t *testing.T) {
 
 	age := Get(str, "obj_list[1].age")
 	assert.Equal(t, age.Int(), 10)
+
+	str = `[1,23]`
+	x := Get(str, "x")
+	assert.Equal(t, x.String(), "")
 
 }

@@ -83,7 +83,7 @@ func GrammarTokenize(str string) ([]*GrammarTokenType, error) {
 				values = append(values, b)
 				status = EndArrayIndex
 			} else {
-				return nil, errors.New("invalid array index [")
+				return nil, errors.New("invalid array index ]")
 			}
 
 		case EndArrayIndex:
@@ -110,10 +110,6 @@ func GrammarTokenize(str string) ([]*GrammarTokenType, error) {
 }
 
 func InitGrammarStatus(b byte, values []byte) (GrammarToken, []byte) {
-	if b == '[' {
-		values = append(values, b)
-		return BeginArrayIndex, values
-	}
 	if isGrammarLetter(b) || isDigit(b) {
 		values = append(values, b)
 		return Key, values
@@ -140,13 +136,6 @@ type GrammarTokenReader struct {
 
 func NewGrammarTokenReader(tokens []*GrammarTokenType) *GrammarTokenReader {
 	return &GrammarTokenReader{tokens: tokens, pos: 0}
-}
-
-func (t *GrammarTokenReader) Peek() *GrammarTokenType {
-	if int(t.pos) >= len(t.tokens) {
-		return nil
-	}
-	return t.tokens[t.pos]
 }
 
 func (t *GrammarTokenReader) Read() *GrammarTokenType {

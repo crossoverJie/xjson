@@ -91,4 +91,9 @@ func TestGrammarTokenReader(t *testing.T) {
 		read := reader.Read()
 		fmt.Printf("%s \t %s \n", read.T, read.Value)
 	}
+
+	grammar = `l[10.a`
+	_, err = GrammarTokenize(grammar)
+	assert.NotNil(t, err)
+	fmt.Println(err)
 }
