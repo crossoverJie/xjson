@@ -66,6 +66,6 @@ func TestJson(t *testing.T) {
 ```
 
 # Features
-- [ ] Resolve to struct
-- [ ] Support syntax: `gjson.Get("glossary.title")`
+- [x] Support syntax: `gjson.Get("glossary.title")`
 - [ ] Support arithmetic operators: `gjson.Get("glossary.age+long")`
+- [ ] Resolve to struct

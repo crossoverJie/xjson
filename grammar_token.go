@@ -31,7 +31,7 @@ func GrammarTokenize(str string) ([]*GrammarTokenType, error) {
 			break
 		case Key:
 
-			if isLetter(b) || isDigit(b) {
+			if isGrammarLetter(b) || isDigit(b) {
 				values = append(values, b)
 			} else if b == '[' {
 				t := &GrammarTokenType{
@@ -98,7 +98,6 @@ func GrammarTokenize(str string) ([]*GrammarTokenType, error) {
 		}
 	}
 
-	// 解析最后一个
 	if len(values) > 0 {
 		t := &GrammarTokenType{
 			T:     status,
@@ -115,7 +114,7 @@ func InitGrammarStatus(b byte, values []byte) (GrammarToken, []byte) {
 		values = append(values, b)
 		return BeginArrayIndex, values
 	}
-	if isLetter(b) || isDigit(b) {
+	if isGrammarLetter(b) || isDigit(b) {
 		values = append(values, b)
 		return Key, values
 	}
@@ -127,7 +126,7 @@ func InitGrammarStatus(b byte, values []byte) (GrammarToken, []byte) {
 	return GrammarInit, values
 }
 
-func isLetter(b byte) bool {
+func isGrammarLetter(b byte) bool {
 	if b == '[' || b == ']' {
 		return false
 	}
