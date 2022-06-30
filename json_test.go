@@ -420,7 +420,7 @@ func TestJSONGet2(t *testing.T) {
 	assert.Equal(t, i.String(), "")
 
 	i = Get(str, "obj")
-	m := i.Object().(map[string]interface{})
+	m := i.Map()
 	assert.Equal(t, m["name"], "cj")
 	assert.Equal(t, m["age"], "10")
 	assert.Equal(t, m["int"], 10)
@@ -450,6 +450,10 @@ func TestJSONGet2(t *testing.T) {
 
 	list = Get(str, "list2.obj2[0].obj3.list3[2]")
 	assert.Equal(t, list.Bool(), false)
+
+	assert.Equal(t, list.Exists(), true)
+	exist := Get(str, "abc")
+	assert.Equal(t, exist.Exists(), false)
 }
 
 func TestJSONGet3(t *testing.T) {

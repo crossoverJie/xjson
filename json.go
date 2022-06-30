@@ -221,6 +221,13 @@ func (r Result) Float() float64 {
 func (r Result) Object() interface{} {
 	return r.object
 }
+func (r Result) Map() map[string]interface{} {
+	return r.object.(map[string]interface{})
+}
+
+func (r Result) Exists() bool {
+	return r.object != nil
+}
 
 func buildEmptyResult() Result {
 	return Result{}
