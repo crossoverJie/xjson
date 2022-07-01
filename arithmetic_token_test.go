@@ -37,6 +37,9 @@ func TestGetWithArithmetic(t *testing.T) {
 
 	result = GetWithArithmetic(str, "age")
 	assert.Equal(t, result.Int(), 10)
+	str = `{"people":[{"bob":{"age":10}},{"alice":{"age":10}}]}`
+	age := GetWithArithmetic(str, "people[0].bob.age + people[1].alice.age")
+	assert.Equal(t, age.Int(), 20)
 }
 
 func TestGetWithArithmetic2(t *testing.T) {

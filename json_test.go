@@ -516,4 +516,7 @@ func TestJSONGet3(t *testing.T) {
 	x := Get(str, "x")
 	assert.Equal(t, x.String(), "")
 
+	first := Get(`{"people":{"name":{"first":"bob"}}}`, "people.name.first")
+	assert.Equal(t, first.String(), "bob")
+
 }

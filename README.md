@@ -1,5 +1,19 @@
 
-JSON parser for Go.
+`gjson` is a `JSON` parsing library, you can query `JSON` like `OOP`. 
+
+```go
+first := Get(`{"people":{"name":{"first":"bob"}}}`, "people.name.first")
+assert.Equal(t, first.String(), "bob")
+```
+
+You can even perform arithmetic operations with `JSON`.
+
+```go
+str := `{"people":[{"bob":{"age":10}},{"alice":{"age":10}}]}`
+age := gjson.GetWithArithmetic(str, "people[0].bob.age + people[1].alice.age")
+assert.Equal(t, age.Int(), 20)
+```
+
 
 [![codecov](https://codecov.io/gh/crossoverJie/gjson/branch/main/graph/badge.svg?token=51WIOVFN95)](https://codecov.io/gh/crossoverJie/gjson)
 
