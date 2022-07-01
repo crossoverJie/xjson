@@ -50,9 +50,10 @@ func NewObjectValue(object interface{}) *StackValue {
 func NewObjectKey(key string) *StackValue {
 	return &StackValue{stackType: ObjectKey, object: key}
 }
-func NewArray(array []interface{}) *StackValue {
-	return &StackValue{stackType: Array, object: array}
-}
+
+//func NewArray(array []interface{}) *StackValue {
+//	return &StackValue{stackType: Array, object: array}
+//}
 func NewArrayPoint(array *[]interface{}) *StackValue {
 	return &StackValue{stackType: Array, object: array}
 }
@@ -67,9 +68,9 @@ func (s *StackValue) Raw() interface{} {
 	return s.object
 }
 
-func (s *StackValue) ArrayValue() []interface{} {
-	return s.object.([]interface{})
-}
+//func (s *StackValue) ArrayValue() []interface{} {
+//	return s.object.([]interface{})
+//}
 func (s *StackValue) ArrayValuePoint() *[]interface{} {
 	arr := s.object.(*[]interface{})
 	return arr

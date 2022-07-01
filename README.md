@@ -1,17 +1,117 @@
-
-JSON parser for Go.
-
 [![codecov](https://codecov.io/gh/crossoverJie/gjson/branch/main/graph/badge.svg?token=51WIOVFN95)](https://codecov.io/gh/crossoverJie/gjson)
 
+`gjson` is a `JSON` parsing library, you can query `JSON` like `OOP`. 
 
-# Usage
+```go
+str := `{"people":{"name":{"first":"bob"}}}`
+first := Get(str, "people.name.first")
+assert.Equal(t, first.String(), "bob")
+```
+
+You can even perform arithmetic operations with `JSON`.
+
+```go
+str := `{"people":[{"bob":{"age":10}},{"alice":{"age":10}}]}`
+age := gjson.GetWithArithmetic(str, "people[0].bob.age + people[1].alice.age")
+assert.Equal(t, age.Int(), 20)
+```
+
+Installing:
 
 ```shell
 go get github.com/crossoverJie/gjson
 ```
 
+# Query Syntax
+
+- Use dot `.` to indicate object nesting relationships.
+- Use `[index]` indicate an array.
+
 ```go
-import "github.com/crossoverJie/gjson"
+str := `
+{
+"name": "bob",
+"age": 20,
+"skill": {
+    "lang": [
+        {
+            "go": {
+                "feature": [
+                    "goroutine",
+                    "channel",
+                    "simple",
+                    true
+                ]
+            }
+        }
+    ]
+}
+}`
+
+name := gjson.Get(str, "name")
+assert.Equal(t, name.String(), "bob")
+
+age := gjson.Get(str, "age")
+assert.Equal(t, age.Int(), 20)
+
+assert.Equal(t, gjson.Get(str,"skill.lang[0].go.feature[0]").String(), "goroutine")
+assert.Equal(t, gjson.Get(str,"skill.lang[0].go.feature[1]").String(), "channel")
+assert.Equal(t, gjson.Get(str,"skill.lang[0].go.feature[2]").String(), "simple")
+assert.Equal(t, gjson.Get(str,"skill.lang[0].go.feature[3]").Bool(), true)
+```
+
+The tow syntax work together to obtain complex nested `JSON` data.
+
+# Arithmetic Syntax
+
+`gjson` supports `+ - * / ()` arithmetic operations.
+
+```go
+str := `{"name":"bob", "age":10,"magic":10.1, "score":{"math":[1,2]}}`
+result := gjson.GetWithArithmetic(str, "(age+age)*age+magic")
+assert.Equal(t, result.Float(), 210.1)
+result = gjson.GetWithArithmetic(str, "(age+age)*age")
+assert.Equal(t, result.Int(), 200)
+
+result = gjson.GetWithArithmetic(str, "(age+age) * age + score.math[0]")
+assert.Equal(t, result.Int(), 201)
+
+result = gjson.GetWithArithmetic(str, "(age+age) * age - score.math[0]")
+assert.Equal(t, result.Int(), 199)
+```
+
+**Attention**:
+
+- Only **int/float** are supported.
+- When other types(`string/bool/null..`) exist, the empty `Result` will be returned.
+- When `int` and `float` are caculated, **float** will be returned.
+
+# Result
+
+Both `Get()/GetWithArithmetic` will return `Result` type.
+
+
+It provides the following methods to help us obtain data more easily.
+
+```go
+func (r Result) String() string
+func (r Result) Bool() bool
+func (r Result) Int() int
+func (r Result) Float() float64
+func (r Result) Map() map[string]interface{}
+func (r Result) Array() *[]interface{}
+func (r Result) Exists() bool
+```
+
+> You can tell what they mean from their names.
+
+## Other APIs
+
+### Decode
+
+It can convert `JSON` strings to `interface{}`.
+
+```go
 func TestJson(t *testing.T) {
 	str := `{
    "glossary": {
@@ -66,6 +166,10 @@ func TestJson(t *testing.T) {
 ```
 
 # Features
+- [x] Support syntax: `gjson.Get("glossary.title")`
+- [x] Support arithmetic operators: `gjson.Get("glossary.age+long")`
 - [ ] Resolve to struct
-- [ ] Support syntax: `gjson.Get("glossary.title")`
-- [ ] Support arithmetic operators: `gjson.Get("glossary.age+long")`
+
+# Acknowledgements
+
+[gjson](https://github.com/tidwall/gjson)

@@ -364,3 +364,192 @@ type T struct {
 		C   []int `json:"c"`
 	} `json:"obj"`
 }
+
+func TestJSONGet(t *testing.T) {
+	str := `{"name":"cj"}`
+	get := Get(str, "name")
+	assert.Equal(t, get.String(), "cj")
+
+	str = `{"name":"cj}`
+	get = Get(str, "name")
+	assert.Equal(t, get.String(), "")
+
+	str = `[1,2]`
+	get = Get(str, "name")
+	assert.Equal(t, get.String(), "")
+}
+func TestJSONGet2(t *testing.T) {
+	str := `{
+    "obj": {
+        "name": "cj",
+        "age": "10",
+        "int": 10
+    },
+    "obj_list": [
+        {
+            "name": "cj"
+        },
+        {
+            "age": 10
+        }
+    ],
+    "list": [
+        1,
+        2,
+        3
+    ],
+    "list2": {
+        "obj2": [
+            {
+                "obj3": {
+                    "list3": [
+                        true,
+                        false,
+                        null,
+						10.1
+                    ]
+                }
+            }
+        ]
+    }
+}`
+	name := Get(str, "obj.name")
+	assert.Equal(t, name.String(), "cj")
+
+	age := Get(str, "obj.age")
+	assert.Equal(t, age.String(), "10")
+
+	i := Get(str, "obj.int")
+	assert.Equal(t, i.Int(), 10)
+
+	i = Get(str, "obj.int")
+	assert.Equal(t, i.String(), "10")
+
+	i = Get(str, "obj.")
+	assert.Equal(t, i.String(), "")
+
+	i = Get(str, "obj")
+	m := i.Map()
+	assert.Equal(t, m["name"], "cj")
+	assert.Equal(t, m["age"], "10")
+	assert.Equal(t, m["int"], 10)
+
+	obj := Get(str, "obj_list")
+	fmt.Println(obj)
+
+	name = Get(str, "obj_list[0].name")
+	assert.Equal(t, name.String(), "cj")
+
+	age = Get(str, "obj_list[1].age")
+	assert.Equal(t, age.Int(), 10)
+
+	list := Get(str, "list[0]")
+	assert.Equal(t, list.Int(), 1)
+	list = Get(str, "list[1]")
+	assert.Equal(t, list.Int(), 2)
+	list = Get(str, "list[2]")
+	assert.Equal(t, list.Int(), 3)
+
+	list = Get(str, "list2.obj2[0].obj3.list3[0]")
+	assert.Equal(t, list.String(), "true")
+	assert.Equal(t, list.Bool(), true)
+
+	list = Get(str, "list2.obj2[0].obj3.list3[1]")
+	assert.Equal(t, list.Bool(), false)
+
+	list = Get(str, "list2.obj2[0].obj3.list3[2]")
+	assert.Equal(t, list.Bool(), false)
+	assert.Equal(t, list.String(), "")
+
+	list = Get(str, "list2.obj2[0].obj3.list3[3]")
+	assert.Equal(t, list.String(), "10.100000")
+	list = Get(str, "list2")
+	fmt.Println(list.String())
+	list = Get(str, "list2.obj2[0].obj3.list3")
+	fmt.Println(list.String())
+
+	assert.Equal(t, list.Exists(), true)
+	exist := Get(str, "abc")
+	assert.Equal(t, exist.Exists(), false)
+}
+
+func TestJSONGet3(t *testing.T) {
+	str := `{"obj_list":[{"name":"cj"},{"age":10,"h":0,"str":"20","b1":true,"b2":false,"float":10.0,"array":[1,2]}]}`
+	obj := Get(str, "obj_list")
+	fmt.Println(obj)
+
+	name := Get(str, "obj_list[0].name")
+	assert.Equal(t, name.String(), "cj")
+
+	age := Get(str, "obj_list[1].age")
+	assert.Equal(t, age.Int(), 10)
+	assert.Equal(t, age.Bool(), true)
+	assert.Equal(t, Get(str, "obj_list[1].h").Bool(), false)
+	assert.Equal(t, Get(str, "obj_list[1].str").Int(), 20)
+	assert.Equal(t, Get(str, "obj_list[1].b1").Int(), 1)
+	assert.Equal(t, Get(str, "obj_list[1].b2").Int(), 0)
+	assert.Equal(t, Get(str, "obj_list[1].float").Int(), 10)
+	assert.Equal(t, Get(str, "obj_list[1].str").Float(), 20.0)
+	assert.Equal(t, Get(str, "obj_list[1].b1").Float(), 1.0)
+	assert.Equal(t, Get(str, "obj_list[1].b2").Float(), 0.0)
+	assert.Equal(t, Get(str, "obj_list[1].age").Float(), 10.0)
+	assert.Equal(t, Get(str, "obj_list[1].float").Bool(), false)
+	assert.Equal(t, Get(str, "obj_list").Int(), 0)
+	assert.Equal(t, Get(str, "obj_list").Float(), 0.0)
+	Get(str, "l[10.a")
+	a := Get(str, "obj_list[1].array")
+	fmt.Println(a.Array())
+
+	a = Get(str, "obj_list..")
+	assert.Equal(t, a.String(), "")
+
+	a = Get(str, "obj_list[1]array")
+	assert.Equal(t, a.String(), "")
+
+	a = Get(`{}`, "obj_list[1]array")
+	assert.Equal(t, a.String(), "")
+
+	a = Get(str, "obj_list[1.]")
+	assert.Equal(t, a.String(), "")
+
+	str = `[1,23]`
+	x := Get(str, "x")
+	assert.Equal(t, x.String(), "")
+
+	first := Get(`{"people":{"name":{"first":"bob"}}}`, "people.name.first")
+	assert.Equal(t, first.String(), "bob")
+
+}
+
+func TestGet(t *testing.T) {
+	str := `
+{
+    "name": "bob",
+    "age": 20,
+    "skill": {
+        "lang": [
+            {
+                "go": {
+                    "feature": [
+                        "goroutine",
+                        "channel",
+                        "simple",
+                        true
+                    ]
+                }
+            }
+        ]
+    }
+}`
+
+	name := Get(str, "name")
+	assert.Equal(t, name.String(), "bob")
+
+	age := Get(str, "age")
+	assert.Equal(t, age.Int(), 20)
+
+	assert.Equal(t, Get(str, "skill.lang[0].go.feature[0]").String(), "goroutine")
+	assert.Equal(t, Get(str, "skill.lang[0].go.feature[1]").String(), "channel")
+	assert.Equal(t, Get(str, "skill.lang[0].go.feature[2]").String(), "simple")
+	assert.Equal(t, Get(str, "skill.lang[0].go.feature[3]").Bool(), true)
+}
