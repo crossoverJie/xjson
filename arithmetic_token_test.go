@@ -34,10 +34,23 @@ func TestGetWithArithmetic(t *testing.T) {
 
 	result = GetWithArithmetic(str, "(age+age) * age - obj.x[0]")
 	assert.Equal(t, result.Int(), 199)
+
+	result = GetWithArithmetic(str, "age")
+	assert.Equal(t, result.Int(), 10)
 }
 
 func TestGetWithArithmetic2(t *testing.T) {
 	str := `{"name":[}`
 	x := GetWithArithmetic(str, "x")
+	assert.Equal(t, x.String(), "")
+}
+
+func TestGetWithArithmeticErr(t *testing.T) {
+	str := `[1,2]`
+	x := GetWithArithmetic(str, "x")
+	assert.Equal(t, x.String(), "")
+
+	str = `{"age":true}`
+	x = GetWithArithmetic(str, "age")
 	assert.Equal(t, x.String(), "")
 }

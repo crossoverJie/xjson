@@ -474,7 +474,7 @@ func TestJSONGet2(t *testing.T) {
 }
 
 func TestJSONGet3(t *testing.T) {
-	str := `{"obj_list":[{"name":"cj"},{"age":10}]}`
+	str := `{"obj_list":[{"name":"cj"},{"age":10,"h":0,"str":"20","b1":true,"b2":false,"float":10.0,"array":[1,2]}]}`
 	obj := Get(str, "obj_list")
 	fmt.Println(obj)
 
@@ -483,6 +483,34 @@ func TestJSONGet3(t *testing.T) {
 
 	age := Get(str, "obj_list[1].age")
 	assert.Equal(t, age.Int(), 10)
+	assert.Equal(t, age.Bool(), true)
+	assert.Equal(t, Get(str, "obj_list[1].h").Bool(), false)
+	assert.Equal(t, Get(str, "obj_list[1].str").Int(), 20)
+	assert.Equal(t, Get(str, "obj_list[1].b1").Int(), 1)
+	assert.Equal(t, Get(str, "obj_list[1].b2").Int(), 0)
+	assert.Equal(t, Get(str, "obj_list[1].float").Int(), 10)
+	assert.Equal(t, Get(str, "obj_list[1].str").Float(), 20.0)
+	assert.Equal(t, Get(str, "obj_list[1].b1").Float(), 1.0)
+	assert.Equal(t, Get(str, "obj_list[1].b2").Float(), 0.0)
+	assert.Equal(t, Get(str, "obj_list[1].age").Float(), 10.0)
+	assert.Equal(t, Get(str, "obj_list[1].float").Bool(), false)
+	assert.Equal(t, Get(str, "obj_list").Int(), 0)
+	assert.Equal(t, Get(str, "obj_list").Float(), 0.0)
+	Get(str, "l[10.a")
+	a := Get(str, "obj_list[1].array")
+	fmt.Println(a.Array())
+
+	a = Get(str, "obj_list..")
+	assert.Equal(t, a.String(), "")
+
+	a = Get(str, "obj_list[1]array")
+	assert.Equal(t, a.String(), "")
+
+	a = Get(`{}`, "obj_list[1]array")
+	assert.Equal(t, a.String(), "")
+
+	a = Get(str, "obj_list[1.]")
+	assert.Equal(t, a.String(), "")
 
 	str = `[1,23]`
 	x := Get(str, "x")

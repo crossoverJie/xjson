@@ -64,7 +64,6 @@ func getWithMap(root map[string]interface{}, grammar string) Result {
 			}
 			var (
 				m     map[string]interface{}
-				a     *[]interface{}
 				v     interface{}
 				token Token
 				ok    bool
@@ -72,18 +71,14 @@ func getWithMap(root map[string]interface{}, grammar string) Result {
 			switch result.object.(type) {
 			case map[string]interface{}:
 				m = result.object.(map[string]interface{})
-			case *[]interface{}:
-				a = result.object.(*[]interface{})
 			}
 
-			if m != nil {
+			if m != nil && len(m) > 0 {
 				v, ok = m[read.Value]
 				token = typeOfToken(v)
 				if !ok {
 					return buildEmptyResult()
 				}
-			} else if a != nil {
-				v = a
 			} else {
 				return buildEmptyResult()
 			}
@@ -96,14 +91,16 @@ func getWithMap(root map[string]interface{}, grammar string) Result {
 			statuses = []GrammarToken{Dot, BeginArrayIndex}
 			break
 		case BeginArrayIndex:
-			if notIncludeGrammarToken(BeginArrayIndex, statuses) {
-				return buildEmptyResult()
-			}
+			// unless code
+			//if notIncludeGrammarToken(BeginArrayIndex, statuses) {
+			//	return buildEmptyResult()
+			//}
 			statuses = []GrammarToken{Dot, ArrayIndex}
 		case ArrayIndex:
-			if notIncludeGrammarToken(ArrayIndex, statuses) {
-				return buildEmptyResult()
-			}
+			// unless code
+			//if notIncludeGrammarToken(ArrayIndex, statuses) {
+			//	return buildEmptyResult()
+			//}
 			a := result.object.(*[]interface{})
 			index, _ := strconv.Atoi(read.Value)
 			v := (*a)[index]
@@ -115,9 +112,10 @@ func getWithMap(root map[string]interface{}, grammar string) Result {
 			}
 			statuses = []GrammarToken{EndArrayIndex}
 		case EndArrayIndex:
-			if notIncludeGrammarToken(EndArrayIndex, statuses) {
-				return buildEmptyResult()
-			}
+			// unless code
+			//if notIncludeGrammarToken(EndArrayIndex, statuses) {
+			//	return buildEmptyResult()
+			//}
 			statuses = []GrammarToken{Dot}
 
 		case Dot:
@@ -190,7 +188,7 @@ func GetWithArithmetic(json, arithmetic string) Result {
 	//return Result{}
 }
 
-func (r *Result) String() string {
+func (r Result) String() string {
 	switch r.Token {
 	case String:
 		return fmt.Sprint(r.object)
@@ -236,10 +234,13 @@ func (r Result) Int() int {
 	case String:
 		v, _ := strconv.Atoi(fmt.Sprint(r.object))
 		return v
-	case True:
-		return 1
-	case False:
-		return 0
+	case Bool:
+		v, _ := strconv.ParseBool(fmt.Sprint(r.object))
+		if v {
+			return 1
+		} else {
+			return 0
+		}
 	case Number:
 		v, _ := strconv.Atoi(fmt.Sprint(r.object))
 		return v
@@ -256,10 +257,13 @@ func (r Result) Float() float64 {
 	case String:
 		v, _ := strconv.ParseFloat(fmt.Sprint(r.object), 64)
 		return v
-	case True:
-		return 1
-	case False:
-		return 0
+	case Bool:
+		v, _ := strconv.ParseBool(fmt.Sprint(r.object))
+		if v {
+			return 1.0
+		} else {
+			return 0.0
+		}
 	case Number:
 		v, _ := strconv.Atoi(fmt.Sprint(r.object))
 		return float64(v)
@@ -271,11 +275,11 @@ func (r Result) Float() float64 {
 	}
 }
 
-func (r Result) Object() interface{} {
-	return r.object
-}
 func (r Result) Map() map[string]interface{} {
 	return r.object.(map[string]interface{})
+}
+func (r Result) Array() *[]interface{} {
+	return r.object.(*[]interface{})
 }
 
 func (r Result) Exists() bool {
