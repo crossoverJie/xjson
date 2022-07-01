@@ -1,8 +1,10 @@
+[![codecov](https://codecov.io/gh/crossoverJie/gjson/branch/main/graph/badge.svg?token=51WIOVFN95)](https://codecov.io/gh/crossoverJie/gjson)
 
 `gjson` is a `JSON` parsing library, you can query `JSON` like `OOP`. 
 
 ```go
-first := Get(`{"people":{"name":{"first":"bob"}}}`, "people.name.first")
+str := `{"people":{"name":{"first":"bob"}}}`
+first := Get(str, "people.name.first")
 assert.Equal(t, first.String(), "bob")
 ```
 
@@ -15,8 +17,49 @@ assert.Equal(t, age.Int(), 20)
 ```
 
 
-[![codecov](https://codecov.io/gh/crossoverJie/gjson/branch/main/graph/badge.svg?token=51WIOVFN95)](https://codecov.io/gh/crossoverJie/gjson)
+# Query Syntax
 
+- Use dot `.` to indicate object nesting relationships.
+- Use `[index]` indicate an array.
+
+```go
+str := `
+{
+"name": "bob",
+"age": 20,
+"skill": {
+    "lang": [
+        {
+            "go": {
+                "feature": [
+                    "goroutine",
+                    "channel",
+                    "simple",
+                    true
+                ]
+            }
+        }
+    ]
+}
+}`
+
+name := Get(str, "name")
+assert.Equal(t, name.String(), "bob")
+
+age := Get(str, "age")
+assert.Equal(t, age.Int(), 20)
+
+assert.Equal(t, gjson.Get(str,"skill.lang[0].go.feature[0]").String(), "goroutine")
+assert.Equal(t, gjson.Get(str,"skill.lang[0].go.feature[1]").String(), "channel")
+assert.Equal(t, gjson.Get(str,"skill.lang[0].go.feature[2]").String(), "simple")
+assert.Equal(t, gjson.Get(str,"skill.lang[0].go.feature[3]").Bool(), true)
+```
+
+The tow syntax work together to obtain complex nested `JSON` data.
+
+# Arithmetic Syntax
+
+`gjson` supports `+ - * /` arithmetic operations.
 
 # Usage
 
@@ -81,5 +124,5 @@ func TestJson(t *testing.T) {
 
 # Features
 - [x] Support syntax: `gjson.Get("glossary.title")`
-- [ ] Support arithmetic operators: `gjson.Get("glossary.age+long")`
+- [x] Support arithmetic operators: `gjson.Get("glossary.age+long")`
 - [ ] Resolve to struct

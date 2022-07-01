@@ -520,3 +520,36 @@ func TestJSONGet3(t *testing.T) {
 	assert.Equal(t, first.String(), "bob")
 
 }
+
+func TestGet(t *testing.T) {
+	str := `
+{
+    "name": "bob",
+    "age": 20,
+    "skill": {
+        "lang": [
+            {
+                "go": {
+                    "feature": [
+                        "goroutine",
+                        "channel",
+                        "simple",
+                        true
+                    ]
+                }
+            }
+        ]
+    }
+}`
+
+	name := Get(str, "name")
+	assert.Equal(t, name.String(), "bob")
+
+	age := Get(str, "age")
+	assert.Equal(t, age.Int(), 20)
+
+	assert.Equal(t, Get(str, "skill.lang[0].go.feature[0]").String(), "goroutine")
+	assert.Equal(t, Get(str, "skill.lang[0].go.feature[1]").String(), "channel")
+	assert.Equal(t, Get(str, "skill.lang[0].go.feature[2]").String(), "simple")
+	assert.Equal(t, Get(str, "skill.lang[0].go.feature[3]").Bool(), true)
+}
