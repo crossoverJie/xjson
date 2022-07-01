@@ -16,6 +16,11 @@ age := gjson.GetWithArithmetic(str, "people[0].bob.age + people[1].alice.age")
 assert.Equal(t, age.Int(), 20)
 ```
 
+Installing:
+
+```shell
+go get github.com/crossoverJie/gjson
+```
 
 # Query Syntax
 
@@ -75,7 +80,7 @@ result = gjson.GetWithArithmetic(str, "(age+age) * age - score.math[0]")
 assert.Equal(t, result.Int(), 199)
 ```
 
-Attention:
+**Attention**:
 
 - Only **int/float** are supported.
 - When other types(`string/bool/null..`) exist, the empty `Result` will be returned.
@@ -100,14 +105,13 @@ func (r Result) Exists() bool
 
 > You can tell what they mean from their names.
 
-## Usage
+## Other APIs
 
-```shell
-go get github.com/crossoverJie/gjson
-```
+### Decode
+
+It can convert `JSON` strings to `interface{}`.
 
 ```go
-import "github.com/crossoverJie/gjson"
 func TestJson(t *testing.T) {
 	str := `{
    "glossary": {
@@ -165,3 +169,7 @@ func TestJson(t *testing.T) {
 - [x] Support syntax: `gjson.Get("glossary.title")`
 - [x] Support arithmetic operators: `gjson.Get("glossary.age+long")`
 - [ ] Resolve to struct
+
+# Acknowledgements
+
+[gjson](https://github.com/tidwall/gjson)
