@@ -48,10 +48,10 @@ str := `
 }
 }`
 
-name := Get(str, "name")
+name := gjson.Get(str, "name")
 assert.Equal(t, name.String(), "bob")
 
-age := Get(str, "age")
+age := gjson.Get(str, "age")
 assert.Equal(t, age.Int(), 20)
 
 assert.Equal(t, gjson.Get(str,"skill.lang[0].go.feature[0]").String(), "goroutine")
