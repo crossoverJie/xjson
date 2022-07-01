@@ -23,16 +23,16 @@ func TestArithmeticTokenize(t *testing.T) {
 }
 
 func TestGetWithArithmetic(t *testing.T) {
-	str := `{"name":"cj", "age":10,"f":10.1, "obj":{"x":[1,2]}}`
-	result := GetWithArithmetic(str, "(age+age)*age+f")
+	str := `{"name":"bob", "age":10,"magic":10.1, "score":{"math":[1,2]}}`
+	result := GetWithArithmetic(str, "(age+age)*age+magic")
 	assert.Equal(t, result.Float(), 210.1)
 	result = GetWithArithmetic(str, "(age+age)*age")
 	assert.Equal(t, result.Int(), 200)
 
-	result = GetWithArithmetic(str, "(age+age) * age + obj.x[0]")
+	result = GetWithArithmetic(str, "(age+age) * age + score.math[0]")
 	assert.Equal(t, result.Int(), 201)
 
-	result = GetWithArithmetic(str, "(age+age) * age - obj.x[0]")
+	result = GetWithArithmetic(str, "(age+age) * age - score.math[0]")
 	assert.Equal(t, result.Int(), 199)
 
 	result = GetWithArithmetic(str, "age")

@@ -59,9 +59,48 @@ The tow syntax work together to obtain complex nested `JSON` data.
 
 # Arithmetic Syntax
 
-`gjson` supports `+ - * /` arithmetic operations.
+`gjson` supports `+ - * / ()` arithmetic operations.
 
-# Usage
+```go
+str := `{"name":"bob", "age":10,"magic":10.1, "score":{"math":[1,2]}}`
+result := gjson.GetWithArithmetic(str, "(age+age)*age+magic")
+assert.Equal(t, result.Float(), 210.1)
+result = gjson.GetWithArithmetic(str, "(age+age)*age")
+assert.Equal(t, result.Int(), 200)
+
+result = gjson.GetWithArithmetic(str, "(age+age) * age + score.math[0]")
+assert.Equal(t, result.Int(), 201)
+
+result = gjson.GetWithArithmetic(str, "(age+age) * age - score.math[0]")
+assert.Equal(t, result.Int(), 199)
+```
+
+Attention:
+
+- Only **int/float** are supported.
+- When other types(`string/bool/null..`) exist, the empty `Result` will be returned.
+- When `int` and `float` are caculated, **float** will be returned.
+
+# Result
+
+Both `Get()/GetWithArithmetic` will return `Result` type.
+
+
+It provides the following methods to help us obtain data more easily.
+
+```go
+func (r Result) String() string
+func (r Result) Bool() bool
+func (r Result) Int() int
+func (r Result) Float() float64
+func (r Result) Map() map[string]interface{}
+func (r Result) Array() *[]interface{}
+func (r Result) Exists() bool
+```
+
+> You can tell what they mean from their names.
+
+## Usage
 
 ```shell
 go get github.com/crossoverJie/gjson
