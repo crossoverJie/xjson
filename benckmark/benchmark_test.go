@@ -128,7 +128,7 @@ type CBPerson struct {
 
 type MediumPayload struct {
 	Person  *CBPerson `json:"person"`
-	Company string    `json:"compnay"`
+	Company string    `json:"company"`
 }
 
 func BenchmarkJsonDecode(b *testing.B) {
