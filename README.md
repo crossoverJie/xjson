@@ -8,7 +8,7 @@ first := Get(str, "people.name.first")
 assert.Equal(t, first.String(), "bob")
 ```
 
-You can even perform arithmetic operations with `JSON`.
+Even perform arithmetic operations with `JSON`.
 
 ```go
 str := `{"people":[{"bob":{"age":10}},{"alice":{"age":10}}]}`
