@@ -4,11 +4,15 @@
     width="300" height="270" border="0" alt="GJSON">
 <br>
 
-<a href="https://goreportcard.com/report/github.com/crossoverJie/gjson"><img src="https://goreportcard.com/badge/github.com/crossoverJie/gjson"></a>
-<a href="https://codecov.io/gh/crossoverJie/gjson"><img src="https://codecov.io/gh/crossoverJie/gjson/branch/main/graph/badge.svg?token=51WIOVFN95"></a>
+
 	
 </p>
-<p align="center">Query and Arithmetic</a></p>
+<p align="center">
+<a href="https://goreportcard.com/report/github.com/crossoverJie/gjson"><img src="https://goreportcard.com/badge/github.com/crossoverJie/gjson"></a>
+<a href="https://codecov.io/gh/crossoverJie/gjson"><img src="https://codecov.io/gh/crossoverJie/gjson/branch/main/graph/badge.svg?token=51WIOVFN95"></a>
+<br>
+Query and Arithmetic
+</p>
 
 
 `gjson` is a `JSON` parsing library, you can query `JSON` like `OOP`. 
