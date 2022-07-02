@@ -1,4 +1,4 @@
-[![codecov](https://codecov.io/gh/crossoverJie/gjson/branch/main/graph/badge.svg?token=51WIOVFN95)](https://codecov.io/gh/crossoverJie/gjson)
+[![Go Report Card](https://goreportcard.com/badge/github.com/crossoverJie/gjson)](https://goreportcard.com/report/github.com/crossoverJie/gjson) [![codecov](https://codecov.io/gh/crossoverJie/gjson/branch/main/graph/badge.svg?token=51WIOVFN95)](https://codecov.io/gh/crossoverJie/gjson)
 
 `gjson` is a `JSON` parsing library, you can query `JSON` like `OOP`. 
 
