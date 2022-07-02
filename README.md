@@ -105,9 +105,9 @@ func (r Result) Exists() bool
 
 > You can tell what they mean from their names.
 
-## Other APIs
+# Other APIs
 
-### Decode
+## Decode
 
 It can convert `JSON` strings to `interface{}`.
 
