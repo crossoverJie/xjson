@@ -4,7 +4,7 @@
 
 ```go
 str := `{"people":{"name":{"first":"bob"}}}`
-first := Get(str, "people.name.first")
+first := gjson.Get(str, "people.name.first")
 assert.Equal(t, first.String(), "bob")
 ```
 
