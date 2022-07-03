@@ -35,6 +35,9 @@ func TestGetWithArithmetic(t *testing.T) {
 	result = GetWithArithmetic(str, "(age+age) * age - score.math[0]")
 	assert.Equal(t, result.Int(), 199)
 
+	result = GetWithArithmetic(str, "score.math[1] / score.math[0]")
+	assert.Equal(t, result.Int(), 2)
+
 	result = GetWithArithmetic(str, "age")
 	assert.Equal(t, result.Int(), 10)
 	str = `{"people":[{"bob":{"age":10}},{"alice":{"age":10}}]}`
