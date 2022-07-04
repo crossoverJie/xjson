@@ -1,4 +1,4 @@
-module github.com/crossoverJie/gjson
+module github.com/crossoverJie/xjson
 
 go 1.16
 

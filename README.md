@@ -1,25 +1,20 @@
-<p align="center">
-<img 
-    src="gjson-logo.PNG" 
-    width="300" height="270" border="0" alt="GJSON">
-<br>
 
 
 	
 </p>
 <p align="center">
-<a href="https://goreportcard.com/report/github.com/crossoverJie/gjson"><img src="https://goreportcard.com/badge/github.com/crossoverJie/gjson"></a>
-<a href="https://codecov.io/gh/crossoverJie/gjson"><img src="https://codecov.io/gh/crossoverJie/gjson/branch/main/graph/badge.svg?token=51WIOVFN95"></a>
+<a href="https://goreportcard.com/report/github.com/crossoverJie/xjson"><img src="https://goreportcard.com/badge/github.com/crossoverJie/xjson"></a>
+<a href="https://codecov.io/gh/crossoverJie/xjson"><img src="https://codecov.io/gh/crossoverJie/xjson/branch/main/graph/badge.svg?token=51WIOVFN95"></a>
 <br>
 Query and Arithmetic
 </p>
 
 
-`gjson` is a `JSON` parsing library, you can query `JSON` like `OOP`. 
+`xjson` is a `JSON` parsing library, you can query `JSON` like `OOP`. 
 
 ```go
 str := `{"people":{"name":{"first":"bob"}}}`
-first := gjson.Get(str, "people.name.first")
+first := xjson.Get(str, "people.name.first")
 assert.Equal(t, first.String(), "bob")
 ```
 
@@ -27,14 +22,14 @@ Even perform arithmetic operations with `JSON`.
 
 ```go
 str := `{"people":[{"bob":{"age":10}},{"alice":{"age":10}}]}`
-age := gjson.GetWithArithmetic(str, "people[0].bob.age + people[1].alice.age")
+age := xjson.GetWithArithmetic(str, "people[0].bob.age + people[1].alice.age")
 assert.Equal(t, age.Int(), 20)
 ```
 
 Installing:
 
 ```shell
-go get github.com/crossoverJie/gjson
+go get github.com/crossoverJie/xjson
 ```
 
 # Query Syntax
@@ -63,35 +58,35 @@ str := `
 }
 }`
 
-name := gjson.Get(str, "name")
+name := xjson.Get(str, "name")
 assert.Equal(t, name.String(), "bob")
 
-age := gjson.Get(str, "age")
+age := xjson.Get(str, "age")
 assert.Equal(t, age.Int(), 20)
 
-assert.Equal(t, gjson.Get(str,"skill.lang[0].go.feature[0]").String(), "goroutine")
-assert.Equal(t, gjson.Get(str,"skill.lang[0].go.feature[1]").String(), "channel")
-assert.Equal(t, gjson.Get(str,"skill.lang[0].go.feature[2]").String(), "simple")
-assert.Equal(t, gjson.Get(str,"skill.lang[0].go.feature[3]").Bool(), true)
+assert.Equal(t, xjson.Get(str,"skill.lang[0].go.feature[0]").String(), "goroutine")
+assert.Equal(t, xjson.Get(str,"skill.lang[0].go.feature[1]").String(), "channel")
+assert.Equal(t, xjson.Get(str,"skill.lang[0].go.feature[2]").String(), "simple")
+assert.Equal(t, xjson.Get(str,"skill.lang[0].go.feature[3]").Bool(), true)
 ```
 
 The tow syntax work together to obtain complex nested `JSON` data.
 
 # Arithmetic Syntax
 
-`gjson` supports `+ - * / ()` arithmetic operations.
+`xjson` supports `+ - * / ()` arithmetic operations.
 
 ```go
 str := `{"name":"bob", "age":10,"magic":10.1, "score":{"math":[1,2]}}`
-result := gjson.GetWithArithmetic(str, "(age+age)*age+magic")
+result := xjson.GetWithArithmetic(str, "(age+age)*age+magic")
 assert.Equal(t, result.Float(), 210.1)
-result = gjson.GetWithArithmetic(str, "(age+age)*age")
+result = xjson.GetWithArithmetic(str, "(age+age)*age")
 assert.Equal(t, result.Int(), 200)
 
-result = gjson.GetWithArithmetic(str, "(age+age) * age + score.math[0]")
+result = xjson.GetWithArithmetic(str, "(age+age) * age + score.math[0]")
 assert.Equal(t, result.Int(), 201)
 
-result = gjson.GetWithArithmetic(str, "(age+age) * age - score.math[0]")
+result = xjson.GetWithArithmetic(str, "(age+age) * age - score.math[0]")
 assert.Equal(t, result.Int(), 199)
 ```
 
@@ -152,7 +147,7 @@ func TestJson(t *testing.T) {
        }
    }
 }`
-	decode, err := gjson.Decode(str)
+	decode, err := xjson.Decode(str)
 	assert.Nil(t, err)
 	fmt.Println(decode)
 	v := decode.(map[string]interface{})
@@ -181,8 +176,8 @@ func TestJson(t *testing.T) {
 ```
 
 # Features
-- [x] Support syntax: `gjson.Get("glossary.title")`
-- [x] Support arithmetic operators: `gjson.Get("glossary.age+long")`
+- [x] Support syntax: `xjson.Get("glossary.title")`
+- [x] Support arithmetic operators: `xjson.Get("glossary.age+long")`
 - [ ] Resolve to struct
 
 # Acknowledgements
