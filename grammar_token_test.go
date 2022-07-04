@@ -97,3 +97,12 @@ func TestGrammarTokenReader(t *testing.T) {
 	assert.NotNil(t, err)
 	fmt.Println(err)
 }
+
+func TestGrammarTokenize(t *testing.T) {
+	str := `1\\.`
+	tokenize, err := GrammarTokenize(str)
+	assert.Nil(t, err)
+	for _, tokenType := range tokenize {
+		fmt.Printf("%s  %s\n", tokenType.T, tokenType.Value)
+	}
+}
