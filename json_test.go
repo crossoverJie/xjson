@@ -553,3 +553,26 @@ func TestGet(t *testing.T) {
 	assert.Equal(t, Get(str, "skill.lang[0].go.feature[2]").String(), "simple")
 	assert.Equal(t, Get(str, "skill.lang[0].go.feature[3]").Bool(), true)
 }
+
+func TestEscape(t *testing.T) {
+	str := `{"1a.":"b"}`
+	get := Get(str, "1a\\.")
+	assert.Equal(t, get.String(), "b")
+
+	str = `{"1a.b.":"b"}`
+	get = Get(str, "1a\\.b\\.")
+	assert.Equal(t, get.String(), "b")
+
+	str = `{"1a.b.[":"b"}`
+	get = Get(str, "1a\\.b\\.\\[")
+	assert.Equal(t, get.String(), "b")
+
+	str = `{"1a.b.[]":"b"}`
+	get = Get(str, "1a\\.b\\.\\[\\]")
+	assert.Equal(t, get.String(), "b")
+
+	str = `{".":"b"}`
+	get = Get(str, "\\.")
+	assert.Equal(t, get.String(), "b")
+
+}
