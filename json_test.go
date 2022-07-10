@@ -562,6 +562,9 @@ func TestEscape(t *testing.T) {
 	str = `{"1a.b.":"b"}`
 	get = Get(str, "1a\\.b\\.")
 	assert.Equal(t, get.String(), "b")
+	str = `{"a.":[1,2]}`
+	get = Get(str, "a\\.[0]")
+	assert.Equal(t, get.String(), "1")
 
 	str = `{"1a.b.[":"b"}`
 	get = Get(str, "1a\\.b\\.\\[")
@@ -575,4 +578,8 @@ func TestEscape(t *testing.T) {
 	get = Get(str, "\\.")
 	assert.Equal(t, get.String(), "b")
 
+	str = `{"a":"{\"a\":\"123\"}"}`
+	get = Get(str, "a")
+	fmt.Println(get)
+	assert.Equal(t, get.String(), "{\"a\":\"123\"}")
 }

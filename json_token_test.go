@@ -95,3 +95,19 @@ func TestTokenErr(t *testing.T) {
 	assert.NotNil(t, err)
 	fmt.Println(err)
 }
+
+func TestEscapeToken(t *testing.T) {
+	str := `{"a":"a"}`
+	tokenize, err := Tokenize(str)
+	assert.Nil(t, err)
+	for _, tokenType := range tokenize {
+		fmt.Printf("%s  %s\n", tokenType.T, tokenType.Value)
+	}
+	str = `{"a":"{\"a\":\"a\"}"}`
+	fmt.Println(str)
+	tokenize, err = Tokenize(str)
+	assert.Nil(t, err)
+	for _, tokenType := range tokenize {
+		fmt.Printf("%s  %s\n", tokenType.T, tokenType.Value)
+	}
+}

@@ -35,7 +35,7 @@ func Parse(reader *TokenReader) (interface{}, error) {
 			s.Push(stackValue)
 			statuses = []status{StatusObjectKey, StatusBeginObject, StatusEndObject}
 		case String:
-			// todo crossoverJie 优雅去掉引号
+			// todo crossoverJie 优雅去掉引号(token do not add ")
 			value := strings.Trim(tokenType.Value, "\"")
 			if includeStatus(StatusObjectKey, statuses) {
 				stackValue := NewObjectKey(value)
