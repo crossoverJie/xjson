@@ -8,7 +8,7 @@ const (
 	GrammarInit     GrammarToken = "Init"
 	Key             GrammarToken = "Key"
 	Dot             GrammarToken = "Dot"
-	Escape          GrammarToken = "Escape"
+	GrammarEscape   GrammarToken = "GrammarEscape"
 	BeginArrayIndex GrammarToken = "BeginArrayIndex"
 	EndArrayIndex   GrammarToken = "EndArrayIndex"
 	ArrayIndex      GrammarToken = "ArrayIndex"
@@ -22,7 +22,6 @@ type GrammarTokenType struct {
 
 func GrammarTokenize(str string) ([]*GrammarTokenType, error) {
 	//bytes := []byte(str)
-	//str = removeEscape(str)
 	var result []*GrammarTokenType
 	var values []byte
 	status := GrammarInit
@@ -35,7 +34,7 @@ func GrammarTokenize(str string) ([]*GrammarTokenType, error) {
 			break
 		case Key:
 			if b == '\\' {
-				status = Escape
+				status = GrammarEscape
 				break
 			} else if isGrammarLetter(b) || isDigit(b) {
 				values = append(values, b)
@@ -65,7 +64,7 @@ func GrammarTokenize(str string) ([]*GrammarTokenType, error) {
 				status, values = InitGrammarStatus(b, values)
 				break
 			}
-		case Escape:
+		case GrammarEscape:
 			if i < len(str) {
 				for ; i < len(str); i++ {
 					if str[i] == '\\' {
@@ -73,10 +72,31 @@ func GrammarTokenize(str string) ([]*GrammarTokenType, error) {
 						if i < len(str) {
 							values = append(values, str[i])
 						}
+					} else if str[i] == '[' {
+						t := &GrammarTokenType{
+							T:     Key,
+							Value: string(values),
+						}
+						result = append(result, t)
+						values = nil
+
+						values = append(values, str[i])
+						t = &GrammarTokenType{
+							T:     BeginArrayIndex,
+							Value: string(values),
+						}
+						result = append(result, t)
+						status = ArrayIndex
+						values = nil
+						break
 					} else {
 						values = append(values, str[i])
 					}
 				}
+			}
+			if len(values) == 0 {
+				// compatible a\.[0]
+				break
 			}
 			t := &GrammarTokenType{
 				T:     Key,
@@ -139,7 +159,7 @@ func GrammarTokenize(str string) ([]*GrammarTokenType, error) {
 
 func InitGrammarStatus(b byte, values []byte) (GrammarToken, []byte) {
 	if b == '\\' {
-		return Escape, values
+		return GrammarEscape, values
 	}
 	if isGrammarLetter(b) || isDigit(b) {
 		values = append(values, b)
