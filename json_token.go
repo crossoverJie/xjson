@@ -18,6 +18,7 @@ const (
 	Float             = "Float"
 	BeginString       = "BeginString"
 	EndString         = "EndString"
+	Escape            = "Escape"
 	String            = "String"
 	True              = "True"
 	True1             = "True1"
@@ -41,11 +42,12 @@ type TokenType struct {
 }
 
 func Tokenize(str string) ([]*TokenType, error) {
-	bytes := []byte(str)
+	//bytes := []byte(str)
 	var result []*TokenType
 	var values []byte
 	status := Init
-	for _, b := range bytes {
+	for i := 0; i < len(str); i++ {
+		b := str[i]
 		switch status {
 		case Init:
 			status, values = InitStatus(b, values)
@@ -67,9 +69,12 @@ func Tokenize(str string) ([]*TokenType, error) {
 			values = nil
 			status, values = InitStatus(b, values)
 		case BeginString:
-			if b == '"' {
-				values = append(values, b)
+			if b == '"' && str[i-1] != '\\' {
+				//values = append(values, b)
 				status = EndString
+			} else if b == '\\' {
+				// skip escape
+				continue
 			} else {
 				values = append(values, b)
 			}
@@ -285,7 +290,7 @@ func InitStatus(b byte, values []byte) (Token, []byte) {
 		return EndObject, values
 	}
 	if b == '"' {
-		values = append(values, b)
+		//values = append(values, b)
 		return BeginString, values
 	}
 	if b == ':' {

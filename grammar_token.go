@@ -8,6 +8,7 @@ const (
 	GrammarInit     GrammarToken = "Init"
 	Key             GrammarToken = "Key"
 	Dot             GrammarToken = "Dot"
+	GrammarEscape   GrammarToken = "GrammarEscape"
 	BeginArrayIndex GrammarToken = "BeginArrayIndex"
 	EndArrayIndex   GrammarToken = "EndArrayIndex"
 	ArrayIndex      GrammarToken = "ArrayIndex"
@@ -20,18 +21,22 @@ type GrammarTokenType struct {
 }
 
 func GrammarTokenize(str string) ([]*GrammarTokenType, error) {
-	bytes := []byte(str)
+	//bytes := []byte(str)
 	var result []*GrammarTokenType
 	var values []byte
 	status := GrammarInit
-	for _, b := range bytes {
+	for i := 0; i < len(str); i++ {
+		b := str[i]
+
 		switch status {
 		case GrammarInit:
 			status, values = InitGrammarStatus(b, values)
 			break
 		case Key:
-
-			if isGrammarLetter(b) || isDigit(b) {
+			if b == '\\' {
+				status = GrammarEscape
+				break
+			} else if isGrammarLetter(b) || isDigit(b) {
 				values = append(values, b)
 			} else if b == '[' {
 				t := &GrammarTokenType{
@@ -59,6 +64,49 @@ func GrammarTokenize(str string) ([]*GrammarTokenType, error) {
 				status, values = InitGrammarStatus(b, values)
 				break
 			}
+		case GrammarEscape:
+			if i < len(str) {
+				for ; i < len(str); i++ {
+					if str[i] == '\\' {
+						i++ //skip escape
+						if i < len(str) {
+							values = append(values, str[i])
+						}
+					} else if str[i] == '[' {
+						t := &GrammarTokenType{
+							T:     Key,
+							Value: string(values),
+						}
+						result = append(result, t)
+						values = nil
+
+						values = append(values, str[i])
+						t = &GrammarTokenType{
+							T:     BeginArrayIndex,
+							Value: string(values),
+						}
+						result = append(result, t)
+						status = ArrayIndex
+						values = nil
+						break
+					} else {
+						values = append(values, str[i])
+					}
+				}
+			}
+			if len(values) == 0 {
+				// compatible a\.[0]
+				break
+			}
+			t := &GrammarTokenType{
+				T:     Key,
+				Value: string(values),
+			}
+			result = append(result, t)
+			values = nil
+			status = GrammarInit
+			break
+
 		case Dot:
 			t := &GrammarTokenType{
 				T:     Dot,
@@ -110,6 +158,9 @@ func GrammarTokenize(str string) ([]*GrammarTokenType, error) {
 }
 
 func InitGrammarStatus(b byte, values []byte) (GrammarToken, []byte) {
+	if b == '\\' {
+		return GrammarEscape, values
+	}
 	if isGrammarLetter(b) || isDigit(b) {
 		values = append(values, b)
 		return Key, values
