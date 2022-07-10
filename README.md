@@ -69,6 +69,11 @@ assert.Equal(t, xjson.Get(str,"skill.lang[0].go.feature[0]").String(), "goroutin
 assert.Equal(t, xjson.Get(str,"skill.lang[0].go.feature[1]").String(), "channel")
 assert.Equal(t, xjson.Get(str,"skill.lang[0].go.feature[2]").String(), "simple")
 assert.Equal(t, xjson.Get(str,"skill.lang[0].go.feature[3]").Bool(), true)
+
+// escape
+str := `{"1a.":"b"}`
+get := Get(str, "1a\\.")
+assert.Equal(t, get.String(), "b")
 ```
 
 The tow syntax work together to obtain complex nested `JSON` data.
@@ -179,6 +184,7 @@ func TestJson(t *testing.T) {
 # Features
 - [x] Support syntax: `xjson.Get("glossary.title")`
 - [x] Support arithmetic operators: `xjson.Get("glossary.age+long")`
+- [x] Support escape.
 - [ ] Resolve to struct
 
 # Acknowledgements
