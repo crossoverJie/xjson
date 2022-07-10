@@ -583,4 +583,10 @@ func TestEscape(t *testing.T) {
 	fmt.Println(get)
 	assert.Equal(t, get.String(), "{\"a\":\"123\"}")
 	assert.Equal(t, Get(get.String(), "a").String(), "123")
+
+	str = `{"a":"{\"a\":[1,2]}"}`
+	get = Get(str, "a")
+	fmt.Println(get)
+	assert.Equal(t, get.String(), "{\"a\":[1,2]}")
+	assert.Equal(t, Get(get.String(), "a[0]").Int(), 1)
 }

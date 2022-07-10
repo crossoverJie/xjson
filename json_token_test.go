@@ -110,4 +110,11 @@ func TestEscapeToken(t *testing.T) {
 	for _, tokenType := range tokenize {
 		fmt.Printf("%s  %s\n", tokenType.T, tokenType.Value)
 	}
+	str = `{"a":"{\"a\":[1.2]}"}`
+	fmt.Println(str)
+	tokenize, err = Tokenize(str)
+	assert.Nil(t, err)
+	for _, tokenType := range tokenize {
+		fmt.Printf("%s  %s\n", tokenType.T, tokenType.Value)
+	}
 }
