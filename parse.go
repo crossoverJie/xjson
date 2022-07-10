@@ -3,7 +3,6 @@ package xjson
 import (
 	"errors"
 	"strconv"
-	"strings"
 )
 
 type status int
@@ -35,10 +34,8 @@ func Parse(reader *TokenReader) (interface{}, error) {
 			s.Push(stackValue)
 			statuses = []status{StatusObjectKey, StatusBeginObject, StatusEndObject}
 		case String:
-			// todo crossoverJie 优雅去掉引号(token do not add ")
-			value := strings.Trim(tokenType.Value, "\"")
 			if includeStatus(StatusObjectKey, statuses) {
-				stackValue := NewObjectKey(value)
+				stackValue := NewObjectKey(tokenType.Value)
 				s.Push(stackValue)
 				statuses = []status{StatusColon}
 				continue
@@ -47,23 +44,22 @@ func Parse(reader *TokenReader) (interface{}, error) {
 				// ObjectValue 后跟的可能是 , 和 }
 				objectKey := s.Pop().ObjectKeyValue()
 				rootMap := s.Peek().ObjectValue()
-				rootMap[objectKey] = value
+				rootMap[objectKey] = tokenType.Value
 				statuses = []status{StatusComma, StatusEndObject}
 				continue
 			}
 			if includeStatus(StatusArrayValue, statuses) {
 				arrayValue := s.Peek().ArrayValuePoint()
-				*arrayValue = append(*arrayValue, value)
+				*arrayValue = append(*arrayValue, tokenType.Value)
 				statuses = []status{StatusComma, StatusEndArray}
 				continue
 			}
-			return nil, errors.New("invalid string '" + value + "'")
+			return nil, errors.New("invalid string '" + tokenType.Value + "'")
 
 		case Number:
 			// todo crossoverJie 优雅转为整形
-			value := strings.Trim(tokenType.Value, "\"")
 			if includeStatus(StatusObjectValue, statuses) {
-				i, _ := strconv.Atoi(value)
+				i, _ := strconv.Atoi(tokenType.Value)
 				objectKey := s.Pop().ObjectKeyValue()
 				rootMap := s.Peek().ObjectValue()
 				rootMap[objectKey] = i
@@ -71,7 +67,7 @@ func Parse(reader *TokenReader) (interface{}, error) {
 				continue
 			}
 			if includeStatus(StatusArrayValue, statuses) {
-				i, _ := strconv.Atoi(value)
+				i, _ := strconv.Atoi(tokenType.Value)
 				arrayValue := s.Peek().ArrayValuePoint()
 				//arrayValue := s.Pop().ArrayValue()
 				*arrayValue = append(*arrayValue, i)
@@ -82,9 +78,8 @@ func Parse(reader *TokenReader) (interface{}, error) {
 			return nil, errors.New("invalid int")
 		case Float:
 			// todo crossoverJie 优雅转为整形
-			value := strings.Trim(tokenType.Value, "\"")
 			if includeStatus(StatusObjectValue, statuses) {
-				i, _ := strconv.ParseFloat(value, 64)
+				i, _ := strconv.ParseFloat(tokenType.Value, 64)
 
 				objectKey := s.Pop().ObjectKeyValue()
 				rootMap := s.Peek().ObjectValue()
@@ -93,7 +88,7 @@ func Parse(reader *TokenReader) (interface{}, error) {
 				continue
 			}
 			if includeStatus(StatusArrayValue, statuses) {
-				i, _ := strconv.ParseFloat(value, 64)
+				i, _ := strconv.ParseFloat(tokenType.Value, 64)
 
 				arrayValue := s.Peek().ArrayValuePoint()
 				*arrayValue = append(*arrayValue, i)

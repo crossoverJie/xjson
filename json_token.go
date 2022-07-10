@@ -70,54 +70,14 @@ func Tokenize(str string) ([]*TokenType, error) {
 			status, values = InitStatus(b, values)
 		case BeginString:
 			if b == '"' && str[i-1] != '\\' {
-				values = append(values, b)
+				//values = append(values, b)
 				status = EndString
 			} else if b == '\\' {
+				// skip escape
 				continue
 			} else {
 				values = append(values, b)
 			}
-		case Escape:
-			if i < len(str) {
-				for ; i < len(str); i++ {
-					if str[i] == '\\' {
-						i++ //skip escape
-						if i < len(str) {
-							values = append(values, str[i])
-						}
-					} else if str[i] == '}' {
-						t := &TokenType{
-							T:     String,
-							Value: string(values),
-						}
-						result = append(result, t)
-						values = nil
-
-						values = append(values, str[i])
-						t = &TokenType{
-							T:     EndObject,
-							Value: string(values),
-						}
-						result = append(result, t)
-						values = nil
-						status, values = InitStatus(b, values)
-						break
-					} else {
-						values = append(values, str[i])
-					}
-				}
-			}
-			if len(values) == 0 {
-				break
-			}
-			t := &TokenType{
-				T:     String,
-				Value: string(values),
-			}
-			result = append(result, t)
-			values = nil
-			status = Init
-			break
 		case EndString:
 			t := &TokenType{
 				T:     String,
@@ -330,7 +290,7 @@ func InitStatus(b byte, values []byte) (Token, []byte) {
 		return EndObject, values
 	}
 	if b == '"' {
-		values = append(values, b)
+		//values = append(values, b)
 		return BeginString, values
 	}
 	if b == ':' {
