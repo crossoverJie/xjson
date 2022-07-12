@@ -20,6 +20,16 @@ func TestArithmeticTokenize(t *testing.T) {
 	for _, tokenType := range tokenize {
 		fmt.Printf("%s  %s\n", tokenType.T, tokenType.Value)
 	}
+
+	str = "(alice.age+bob.age) * tom.age"
+	tokenize, err = ArithmeticTokenize(str)
+	assert.Nil(t, err)
+	for _, tokenType := range tokenize {
+		fmt.Printf("%s  %s\n", tokenType.T, tokenType.Value)
+	}
+	input := `{"alice":{"age":10},"bob":{"age":20},"tom":{"age":20}}`
+	arithmetic := GetWithArithmetic(input, str)
+	assert.Equal(t, arithmetic.Int(), 600)
 }
 
 func TestGetWithArithmetic(t *testing.T) {
