@@ -554,6 +554,16 @@ func TestGet(t *testing.T) {
 	assert.Equal(t, Get(str, "skill.lang[0].go.feature[3]").Bool(), true)
 }
 
+func TestEmptyInput(t *testing.T) {
+	str := ``
+	get := Get(str, "a")
+	assert.Equal(t, get.String(), "")
+	str = `
+`
+	get = Get(str, "a")
+	assert.Equal(t, get.String(), "")
+}
+
 func TestEscape(t *testing.T) {
 	str := `{"1a.":"b"}`
 	get := Get(str, "1a\\.")
