@@ -3,6 +3,7 @@ package xjson
 import (
 	"fmt"
 	"github.com/crossoverJie/gscript/syntax"
+	"reflect"
 	"strconv"
 	"strings"
 )
@@ -26,6 +27,40 @@ func Decode(input string) (interface{}, error) {
 	}
 	reader := NewTokenReader(tokenize)
 	return Parse(reader)
+}
+
+func Encode(input string, v interface{}) error {
+	value := reflect.ValueOf(v)
+	t := value.Type()
+	if k := t.Kind(); k != reflect.Ptr {
+		return fmt.Errorf("invalid type:%v non-point", t)
+	}
+	elem := t.Elem()
+	loopElem(elem, "")
+	//for i := 0; i < elem.NumField(); i++ {
+	//	ft := elem.Field(i)
+	//	fmt.Printf("%s, %v\n", ft.Name,ft.Type.Kind())
+	//}
+
+	return nil
+}
+func loopElem(elem reflect.Type, indent string) {
+	for i := 0; i < elem.NumField(); i++ {
+		ft := elem.Field(i)
+		fmt.Printf("%s %s, %v\n", indent, ft.Name, ft.Type.Kind())
+		if ft.Type.Kind() == reflect.String {
+			v := reflect.New(ft.Type)
+			v.SetString("1")
+		}
+		if ft.Type.Kind() == reflect.Struct {
+			loopElem(ft.Type, indent+"\t")
+		} else if ft.Type.Kind() == reflect.Slice {
+			t := ft.Type.Elem()
+			if t.Kind() != reflect.Interface {
+				loopElem(t, indent+"\t")
+			}
+		}
+	}
 }
 
 func Get(json, grammar string) Result {

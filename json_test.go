@@ -590,3 +590,55 @@ func TestEscape(t *testing.T) {
 	assert.Equal(t, get.String(), "{\"a\":[1,2]}")
 	assert.Equal(t, Get(get.String(), "a[0]").Int(), 1)
 }
+
+func TestEncode(t *testing.T) {
+	x := struct {
+		Name  string `json:"name"`
+		Age   int    `json:"age"`
+		Skill struct {
+			Lang []struct {
+				Go struct {
+					Feature []interface{} `json:"feature"`
+				} `json:"go"`
+			} `json:"lang"`
+		} `json:"skill"`
+	}{}
+	err := Encode("", &x)
+	fmt.Println(err)
+}
+func TestEncode2(t *testing.T) {
+	x := struct {
+		Name  string `json:"name"`
+		Age   int    `json:"age"`
+		Skill struct {
+			Lang []struct {
+				Go struct {
+					Feature string `json:"feature"`
+				} `json:"go"`
+				Python struct {
+					Feature string `json:"feature"`
+				}
+			} `json:"lang"`
+		} `json:"skill"`
+	}{}
+	err := Encode("", &x)
+	fmt.Println(err)
+}
+func TestEncode3(t *testing.T) {
+	x := struct {
+		Name  *string `json:"name"`
+		Age   *string `json:"age"`
+		Skill struct {
+			Lang []struct {
+				Go struct {
+					Feature *string `json:"feature"`
+				} `json:"go"`
+				Python struct {
+					Feature *string `json:"feature"`
+				}
+			} `json:"lang"`
+		} `json:"skill"`
+	}{}
+	err := Encode("", &x)
+	fmt.Println(err)
+}
