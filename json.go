@@ -1,6 +1,7 @@
 package xjson
 
 import (
+	"errors"
 	"fmt"
 	"github.com/crossoverJie/gscript/syntax"
 	"reflect"
@@ -24,6 +25,9 @@ func Decode(input string) (interface{}, error) {
 	tokenize, err := Tokenize(input)
 	if err != nil {
 		return nil, err
+	}
+	if len(tokenize) == 0 {
+		return nil, errors.New("input is empty")
 	}
 	reader := NewTokenReader(tokenize)
 	return Parse(reader)
