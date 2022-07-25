@@ -39,29 +39,40 @@ func Encode(input string, v interface{}) error {
 	if k := t.Kind(); k != reflect.Ptr {
 		return fmt.Errorf("invalid type:%v non-point", t)
 	}
-	elem := t.Elem()
-	loopElem(elem, "")
-	//for i := 0; i < elem.NumField(); i++ {
-	//	ft := elem.Field(i)
+	elemType := t.Elem()
+	loopElem(elemType, value, "")
+	//for i := 0; i < elemType.NumField(); i++ {
+	//	ft := elemType.Field(i)
 	//	fmt.Printf("%s, %v\n", ft.Name,ft.Type.Kind())
 	//}
 
 	return nil
 }
-func loopElem(elem reflect.Type, indent string) {
-	for i := 0; i < elem.NumField(); i++ {
-		ft := elem.Field(i)
+func loopElem(elemType reflect.Type, value reflect.Value, indent string) {
+	for i := 0; i < elemType.NumField(); i++ {
+		ft := elemType.Field(i)
 		fmt.Printf("%s %s, %v\n", indent, ft.Name, ft.Type.Kind())
 		if ft.Type.Kind() == reflect.String {
-			v := reflect.New(ft.Type)
-			v.SetString("1")
+			if value.Kind() == reflect.Slice {
+
+			} else {
+				value.Elem().Field(i).SetString("1")
+			}
 		}
 		if ft.Type.Kind() == reflect.Struct {
-			loopElem(ft.Type, indent+"\t")
+			var v reflect.Value
+			if value.Kind() == reflect.Slice {
+				v = value
+			} else {
+				v = value.Elem().Field(i)
+			}
+			loopElem(ft.Type, v, indent+"\t")
 		} else if ft.Type.Kind() == reflect.Slice {
+			// new slice
 			t := ft.Type.Elem()
 			if t.Kind() != reflect.Interface {
-				loopElem(t, indent+"\t")
+				v := value.Field(i)
+				loopElem(t, v, indent+"\t")
 			}
 		}
 	}

@@ -635,20 +635,22 @@ func TestEncode2(t *testing.T) {
 	fmt.Println(err)
 }
 func TestEncode3(t *testing.T) {
-	x := struct {
-		Name  *string `json:"name"`
-		Age   *string `json:"age"`
-		Skill struct {
-			Lang []struct {
-				Go struct {
-					Feature *string `json:"feature"`
-				} `json:"go"`
-				Python struct {
-					Feature *string `json:"feature"`
-				}
-			} `json:"lang"`
-		} `json:"skill"`
-	}{}
+	var x Test
 	err := Encode("", &x)
 	fmt.Println(err)
+}
+
+type Test struct {
+	Name  string `json:"name"`
+	Age   string `json:"age"`
+	Skill struct {
+		Lang []struct {
+			Go struct {
+				Feature string `json:"feature"`
+			} `json:"go"`
+			Python struct {
+				Feature string `json:"feature"`
+			}
+		} `json:"lang"`
+	} `json:"skill"`
 }
