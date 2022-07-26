@@ -16,7 +16,6 @@ const (
 
 type Result struct {
 	Token  Token
-	Raw    string
 	object interface{}
 }
 
@@ -43,11 +42,11 @@ func Get(json, grammar string) Result {
 		return buildEmptyResult()
 	}
 
-	return getWithMap(root, grammar)
+	return getWithRoot(root, grammar)
 
 }
 
-func getWithMap(root map[string]interface{}, grammar string) Result {
+func getWithRoot(root map[string]interface{}, grammar string) Result {
 	tokenize, err := GrammarTokenize(grammar)
 	if err != nil {
 		return buildEmptyResult()
@@ -55,8 +54,7 @@ func getWithMap(root map[string]interface{}, grammar string) Result {
 	reader := NewGrammarTokenReader(tokenize)
 	statuses := []GrammarToken{Key}
 	result := Result{
-		Token: JSONObject,
-		//Raw:    "",
+		Token:  JSONObject,
 		object: root,
 	}
 	for {
@@ -88,8 +86,7 @@ func getWithMap(root map[string]interface{}, grammar string) Result {
 			}
 
 			result = Result{
-				Token: token,
-				//Raw:   v,
+				Token:  token,
 				object: v,
 			}
 			statuses = []GrammarToken{Dot, BeginArrayIndex}
@@ -110,8 +107,7 @@ func getWithMap(root map[string]interface{}, grammar string) Result {
 			v := (*a)[index]
 			token := typeOfToken(v)
 			result = Result{
-				Token: token,
-				//Raw:   v,
+				Token:  token,
 				object: v,
 			}
 			statuses = []GrammarToken{EndArrayIndex}
@@ -160,7 +156,7 @@ func GetWithArithmetic(json, arithmetic string) Result {
 		read := reader.Read()
 		switch read.T {
 		case Identifier:
-			result := getWithMap(root, read.Value)
+			result := getWithRoot(root, read.Value)
 			switch result.Token {
 			case Number:
 				builder.WriteString(fmt.Sprintf("%d", result.Int()))
@@ -192,6 +188,7 @@ func GetWithArithmetic(json, arithmetic string) Result {
 	//return Result{}
 }
 
+// String return result of string
 func (r Result) String() string {
 	switch r.Token {
 	case String:
@@ -207,11 +204,81 @@ func (r Result) String() string {
 		i, _ := strconv.ParseFloat(fmt.Sprint(r.object), 64)
 		return fmt.Sprintf("%f", i)
 	case JSONObject:
-		// todo crossoverJie toJSONString
-		return fmt.Sprint(r.object)
+		return object2JSONString(r.object)
 	case ArrayObject:
-		// todo crossoverJie toJSONString
-		return fmt.Sprint(r.object)
+		return object2JSONString(r.Array())
+	default:
+		return ""
+	}
+}
+
+func object2JSONString(object interface{}) string {
+	var builder strings.Builder
+
+	switch data := object.(type) {
+	case map[string]interface{}:
+		builder.WriteString("{")
+		m := data
+		count := 0
+		for s, v := range m {
+			builder.WriteString(fmt.Sprintf("\"%s\"", s))
+			builder.WriteString(":")
+
+			switch vv := v.(type) {
+			case map[string]interface{}:
+				value := object2JSONString(vv)
+				builder.WriteString(value)
+			case *[]interface{}:
+				slice := covertSlice(vv)
+				value := object2JSONString(slice)
+				builder.WriteString(value)
+			default:
+				builder.WriteString(interface2String(v))
+			}
+
+			count++
+			if len(m) != count {
+				builder.WriteString(",")
+			}
+
+		}
+		builder.WriteString("}")
+	case []interface{}:
+		builder.WriteString("[")
+		count := 0
+		for _, v := range data {
+			switch vv := v.(type) {
+			case map[string]interface{}:
+				value := object2JSONString(vv)
+				builder.WriteString(value)
+			case *[]interface{}:
+				slice := covertSlice(vv)
+				value := object2JSONString(slice)
+				builder.WriteString(value)
+			default:
+				builder.WriteString(interface2String(v))
+			}
+			count++
+			if len(data) != count {
+				builder.WriteString(",")
+			}
+		}
+		builder.WriteString("]")
+	}
+
+	return builder.String()
+}
+
+func interface2String(v interface{}) string {
+	switch vv := v.(type) {
+	case string:
+		return fmt.Sprintf("\"%s\"", v)
+	case int:
+		return strconv.Itoa(vv)
+	case float64:
+		return fmt.Sprintf("%f", vv)
+	case bool:
+		return strconv.FormatBool(vv)
 	default:
 		return ""
 	}
@@ -279,11 +346,23 @@ func (r Result) Float() float64 {
 	}
 }
 
+// Map return map for object
 func (r Result) Map() map[string]interface{} {
 	return r.object.(map[string]interface{})
 }
-func (r Result) Array() *[]interface{} {
-	return r.object.(*[]interface{})
+
+// Array return array for object
+func (r Result) Array() []interface{} {
+	arr := r.object.(*[]interface{})
+	return covertSlice(arr)
+}
+
+func covertSlice(d *[]interface{}) []interface{} {
+	var s []interface{}
+	for _, e := range *d {
+		s = append(s, e)
+	}
+	return s
 }
 
 func (r Result) Exists() bool {

@@ -600,3 +600,55 @@ func TestEscape(t *testing.T) {
 	assert.Equal(t, get.String(), "{\"a\":[1,2]}")
 	assert.Equal(t, Get(get.String(), "a[0]").Int(), 1)
 }
+
+func TestResult_String(t *testing.T) {
+	str := `{"name":{"first":"Janet","last":"Prichard"},"age":47,"h":10}`
+	get := Get(str, "name")
+	fmt.Println(get.String())
+	assert.Equal(t, get.String(), `{"first":"Janet","last":"Prichard"}`)
+
+	str = `{"name":{"first":"Janet","last":"Prichard","obj":{"a":"a"}}}`
+	get = Get(str, "name")
+	fmt.Println(get.String())
+
+	str = `{"name":{"first":"Janet","last":"Prichard","obj":{"a":"a","c":{"c":"cc"}}}}`
+	get = Get(str, "name")
+	fmt.Println(get.String())
+
+	str = `{"name":{"first":"Janet","last":"Prichard","obj":{"a":1,"c":1.2,"d":false,"e":null}}}`
+	get = Get(str, "name")
+	fmt.Println(get.String())
+
+}
+
+func TestResultArray_String(t *testing.T) {
+	str := `{"a":[1,2,3]}`
+	get := Get(str, "a")
+	fmt.Println(get.String())
+	assert.Equal(t, get.String(), "[1,2,3]")
+
+	str = `{"a":["1","2"]}`
+	get = Get(str, "a")
+	fmt.Println(get.String())
+
+	str = `{"a":["1",true,1.0]}`
+	get = Get(str, "a")
+	fmt.Println(get.String())
+
+	str = `{"a":{"b":[1,2,3]}}`
+	get = Get(str, "a")
+	fmt.Println(get.String())
+
+	str = `{"a":{"b":[1,2,3],"c":[{"d":1,"e":{"f":1}}]}}`
+	get = Get(str, "a")
+	fmt.Println(get.String())
+
+	str = `{"a":{"b":[1,2,3],"c":[{"d":1,"e":{"f":1}}]}}`
+	get = Get(str, "a.b")
+	fmt.Println(get.String())
+	assert.Equal(t, get.String(), "[1,2,3]")
+
+	str = `{"a":{"b":[[1,2,3]],"c":[{"d":1,"e":{"f":1}}]}}`
+	get = Get(str, "a.b")
+	fmt.Println(get.String())
+}
