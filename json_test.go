@@ -638,6 +638,7 @@ func TestEncode3(t *testing.T) {
 	var x Test
 	err := Encode("", &x)
 	fmt.Println(err)
+	fmt.Println(x.Age)
 }
 
 type Test struct {
