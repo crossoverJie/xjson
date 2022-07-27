@@ -117,7 +117,7 @@ func (r Result) Bool() bool
 func (r Result) Int() int
 func (r Result) Float() float64
 func (r Result) Map() map[string]interface{}
-func (r Result) Array() *[]interface{}
+func (r Result) Array() []interface{}
 func (r Result) Exists() bool
 ```
 
