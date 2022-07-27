@@ -17,6 +17,8 @@ Query and Arithmetic
 str := `{"people":{"name":{"first":"bob"}}}`
 first := xjson.Get(str, "people.name.first")
 assert.Equal(t, first.String(), "bob")
+get := xjson.Get(str, "people")
+assert.Equal(t, get.String(),`{"name":{"first":"bob"}}`)
 ```
 
 Even perform arithmetic operations with `JSON`.
