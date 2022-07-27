@@ -618,7 +618,8 @@ func TestResult_String(t *testing.T) {
 	str = `{"name":{"first":"Janet","last":"Prichard","obj":{"a":1,"c":1.2,"d":false,"e":null}}}`
 	get = Get(str, "name")
 	fmt.Println(get.String())
-
+	get = Get(get.String(), "first")
+	assert.Equal(t, get.String(), "Janet")
 }
 
 func TestResultArray_String(t *testing.T) {
@@ -642,6 +643,8 @@ func TestResultArray_String(t *testing.T) {
 	str = `{"a":{"b":[1,2,3],"c":[{"d":1,"e":{"f":1}}]}}`
 	get = Get(str, "a")
 	fmt.Println(get.String())
+	get = Get(get.String(), "b")
+	assert.Equal(t, get.String(), "[1,2,3]")
 
 	str = `{"a":{"b":[1,2,3],"c":[{"d":1,"e":{"f":1}}]}}`
 	get = Get(str, "a.b")

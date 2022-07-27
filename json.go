@@ -217,12 +217,12 @@ func object2JSONString(object interface{}) string {
 
 	switch data := object.(type) {
 	case map[string]interface{}:
-		builder.WriteString("{")
+		builder.WriteByte('{')
 		m := data
 		count := 0
 		for s, v := range m {
 			builder.WriteString(fmt.Sprintf("\"%s\"", s))
-			builder.WriteString(":")
+			builder.WriteByte(':')
 
 			switch vv := v.(type) {
 			case map[string]interface{}:
@@ -238,13 +238,13 @@ func object2JSONString(object interface{}) string {
 
 			count++
 			if len(m) != count {
-				builder.WriteString(",")
+				builder.WriteByte(',')
 			}
 
 		}
-		builder.WriteString("}")
+		builder.WriteByte('}')
 	case []interface{}:
-		builder.WriteString("[")
+		builder.WriteByte('[')
 		count := 0
 		for _, v := range data {
 			switch vv := v.(type) {
@@ -260,10 +260,10 @@ func object2JSONString(object interface{}) string {
 			}
 			count++
 			if len(data) != count {
-				builder.WriteString(",")
+				builder.WriteByte(',')
 			}
 		}
-		builder.WriteString("]")
+		builder.WriteByte(']')
 	}
 
 	return builder.String()
