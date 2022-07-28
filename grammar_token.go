@@ -15,6 +15,16 @@ const (
 	EOF             GrammarToken = "EOF"
 )
 
+type GrammarStatus int
+
+const (
+	KeyStatus             GrammarStatus = 0x0004
+	DotStatus             GrammarStatus = 0x0008
+	BeginArrayIndexStatus GrammarStatus = 0x0010
+	EndArrayIndexStatus   GrammarStatus = 0x0020
+	ArrayIndexStatus      GrammarStatus = 0x0040
+)
+
 type GrammarTokenType struct {
 	T     GrammarToken
 	Value string

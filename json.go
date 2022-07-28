@@ -52,7 +52,7 @@ func getWithRoot(root map[string]interface{}, grammar string) Result {
 		return buildEmptyResult()
 	}
 	reader := NewGrammarTokenReader(tokenize)
-	statuses := []GrammarToken{Key}
+	status := KeyStatus
 	result := Result{
 		Token:  JSONObject,
 		object: root,
@@ -61,7 +61,7 @@ func getWithRoot(root map[string]interface{}, grammar string) Result {
 		read := reader.Read()
 		switch read.T {
 		case Key:
-			if notIncludeGrammarToken(Key, statuses) {
+			if !includeGrammarTokenStatus(KeyStatus, status) {
 				return buildEmptyResult()
 			}
 			var (
@@ -89,19 +89,11 @@ func getWithRoot(root map[string]interface{}, grammar string) Result {
 				Token:  token,
 				object: v,
 			}
-			statuses = []GrammarToken{Dot, BeginArrayIndex}
+			status = DotStatus | BeginArrayIndexStatus
 			break
 		case BeginArrayIndex:
-			// unless code
-			//if notIncludeGrammarToken(BeginArrayIndex, statuses) {
-			//	return buildEmptyResult()
-			//}
-			statuses = []GrammarToken{Dot, ArrayIndex}
+			status = DotStatus | ArrayIndexStatus
 		case ArrayIndex:
-			// unless code
-			//if notIncludeGrammarToken(ArrayIndex, statuses) {
-			//	return buildEmptyResult()
-			//}
 			a := result.object.(*[]interface{})
 			index, _ := strconv.Atoi(read.Value)
 			v := (*a)[index]
@@ -110,22 +102,17 @@ func getWithRoot(root map[string]interface{}, grammar string) Result {
 				Token:  token,
 				object: v,
 			}
-			statuses = []GrammarToken{EndArrayIndex}
+			status = EndArrayIndexStatus
 		case EndArrayIndex:
-			// unless code
-			//if notIncludeGrammarToken(EndArrayIndex, statuses) {
-			//	return buildEmptyResult()
-			//}
-			statuses = []GrammarToken{Dot}
-
+			status = DotStatus
 		case Dot:
-			if notIncludeGrammarToken(Dot, statuses) {
+			if !includeGrammarTokenStatus(DotStatus, status) {
 				return buildEmptyResult()
 			}
-			statuses = []GrammarToken{Key}
+			status = KeyStatus
 
 		case EOF:
-			if includeGrammarToken(Key, statuses) {
+			if includeGrammarTokenStatus(KeyStatus, status) {
 				// syntax error
 				return buildEmptyResult()
 			}
@@ -373,22 +360,8 @@ func buildEmptyResult() Result {
 	return Result{}
 }
 
-func includeGrammarToken(status GrammarToken, statuses []GrammarToken) bool {
-	for _, s := range statuses {
-		if status == s {
-			return true
-		}
-	}
-	return false
-}
-
-func notIncludeGrammarToken(status GrammarToken, statuses []GrammarToken) bool {
-	for _, s := range statuses {
-		if status == s {
-			return false
-		}
-	}
-	return true
+func includeGrammarTokenStatus(current, target GrammarStatus) bool {
+	return (current & target) > 0
 }
 
 func typeOfToken(v interface{}) (token Token) {

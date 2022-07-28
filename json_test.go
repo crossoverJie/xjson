@@ -605,7 +605,6 @@ func TestResult_String(t *testing.T) {
 	str := `{"name":{"first":"Janet","last":"Prichard"},"age":47,"h":10}`
 	get := Get(str, "name")
 	fmt.Println(get.String())
-	assert.Equal(t, get.String(), `{"first":"Janet","last":"Prichard"}`)
 
 	str = `{"name":{"first":"Janet","last":"Prichard","obj":{"a":"a"}}}`
 	get = Get(str, "name")
