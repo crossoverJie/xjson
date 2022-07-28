@@ -8,213 +8,211 @@ import (
 type status int
 
 const (
-	StatusObjectKey status = iota
-	StatusColon            //;
-	StatusObjectValue
-	StatusComma //,
-	StatusBeginObject
-	StatusEndObject
-	StatusBeginArray
-	StatusEndArray
-	StatusArrayValue
+	StatusObjectKey   status = 0x0002
+	StatusColon       status = 0x0004 //;
+	StatusObjectValue status = 0x0008
+	StatusComma       status = 0x0010 //,
+	StatusBeginObject status = 0x0020
+	StatusEndObject   status = 0x0040
+	StatusBeginArray  status = 0x0080
+	StatusEndArray    status = 0x0100
+	StatusArrayValue  status = 0x0200
 )
 
 func Parse(reader *TokenReader) (interface{}, error) {
 	s := &Stack{}
-	statuses := []status{StatusBeginObject, StatusBeginArray}
+	status := StatusBeginObject | StatusBeginArray
 	for {
 		tokenType := reader.Read()
 		switch tokenType.T {
 		case BeginObject:
-			if notIncludeStatus(StatusBeginObject, statuses) {
+			if !includeTokenStatus(StatusBeginObject, status) {
 				return nil, errors.New("invalid '{'")
 			}
 			root := make(map[string]interface{})
 			stackValue := NewObjectValue(root)
 			s.Push(stackValue)
-			statuses = []status{StatusObjectKey, StatusBeginObject, StatusEndObject}
+			status = StatusObjectKey | StatusBeginObject | StatusEndObject
 		case String:
-			if includeStatus(StatusObjectKey, statuses) {
+			if includeTokenStatus(StatusObjectKey, status) {
 				stackValue := NewObjectKey(tokenType.Value)
 				s.Push(stackValue)
-				statuses = []status{StatusColon}
+				status = StatusColon
 				continue
 			}
-			if includeStatus(StatusObjectValue, statuses) {
+			if includeTokenStatus(StatusObjectValue, status) {
 				// ObjectValue 后跟的可能是 , 和 }
 				objectKey := s.Pop().ObjectKeyValue()
 				rootMap := s.Peek().ObjectValue()
 				rootMap[objectKey] = tokenType.Value
-				statuses = []status{StatusComma, StatusEndObject}
+				status = StatusComma | StatusEndObject
 				continue
 			}
-			if includeStatus(StatusArrayValue, statuses) {
+			if includeTokenStatus(StatusArrayValue, status) {
 				arrayValue := s.Peek().ArrayValuePoint()
 				*arrayValue = append(*arrayValue, tokenType.Value)
-				statuses = []status{StatusComma, StatusEndArray}
+				status = StatusComma | StatusEndArray
 				continue
 			}
 			return nil, errors.New("invalid string '" + tokenType.Value + "'")
 
 		case Number:
 			// todo crossoverJie 优雅转为整形
-			if includeStatus(StatusObjectValue, statuses) {
+			if includeTokenStatus(StatusObjectValue, status) {
 				i, _ := strconv.Atoi(tokenType.Value)
 				objectKey := s.Pop().ObjectKeyValue()
 				rootMap := s.Peek().ObjectValue()
 				rootMap[objectKey] = i
-				statuses = []status{StatusComma, StatusEndObject}
+				status = StatusComma | StatusEndObject
 				continue
 			}
-			if includeStatus(StatusArrayValue, statuses) {
+			if includeTokenStatus(StatusArrayValue, status) {
 				i, _ := strconv.Atoi(tokenType.Value)
 				arrayValue := s.Peek().ArrayValuePoint()
 				//arrayValue := s.Pop().ArrayValue()
 				*arrayValue = append(*arrayValue, i)
 				//s.Push(NewArray(arrayValue))
-				statuses = []status{StatusComma, StatusEndArray}
+				status = StatusComma | StatusEndArray
 				continue
 			}
 			return nil, errors.New("invalid int")
 		case Float:
 			// todo crossoverJie 优雅转为整形
-			if includeStatus(StatusObjectValue, statuses) {
+			if includeTokenStatus(StatusObjectValue, status) {
 				i, _ := strconv.ParseFloat(tokenType.Value, 64)
 
 				objectKey := s.Pop().ObjectKeyValue()
 				rootMap := s.Peek().ObjectValue()
 				rootMap[objectKey] = i
-				statuses = []status{StatusComma, StatusEndObject}
+				status = StatusComma | StatusEndObject
 				continue
 			}
-			if includeStatus(StatusArrayValue, statuses) {
+			if includeTokenStatus(StatusArrayValue, status) {
 				i, _ := strconv.ParseFloat(tokenType.Value, 64)
 
 				arrayValue := s.Peek().ArrayValuePoint()
 				*arrayValue = append(*arrayValue, i)
-				statuses = []status{StatusComma, StatusEndArray}
+				status = StatusComma | StatusEndArray
 				continue
 			}
 			return nil, errors.New("invalid int")
 		case True:
 			value := tokenType.Value
-			if includeStatus(StatusObjectValue, statuses) {
+			if includeTokenStatus(StatusObjectValue, status) {
 				b, _ := strconv.ParseBool(value)
 				objectKey := s.Pop().ObjectKeyValue()
 				rootMap := s.Peek().ObjectValue()
 				rootMap[objectKey] = b
-				statuses = []status{StatusComma, StatusEndObject}
+				status = StatusComma | StatusEndObject
 				continue
 			}
-			if includeStatus(StatusArrayValue, statuses) {
+			if includeTokenStatus(StatusArrayValue, status) {
 				b, _ := strconv.ParseBool(value)
 				arrayValue := s.Peek().ArrayValuePoint()
 				*arrayValue = append(*arrayValue, b)
-				statuses = []status{StatusComma, StatusEndArray}
+				status = StatusComma | StatusEndArray
 				continue
 			}
 			return nil, errors.New("invalid bool true")
 		case False:
 			value := tokenType.Value
-			if includeStatus(StatusObjectValue, statuses) {
+			if includeTokenStatus(StatusObjectValue, status) {
 				b, _ := strconv.ParseBool(value)
 				objectKey := s.Pop().ObjectKeyValue()
 				rootMap := s.Peek().ObjectValue()
 				rootMap[objectKey] = b
-				statuses = []status{StatusComma, StatusEndObject}
+				status = StatusComma | StatusEndObject
 				continue
 			}
-			if includeStatus(StatusArrayValue, statuses) {
+			if includeTokenStatus(StatusArrayValue, status) {
 				b, _ := strconv.ParseBool(value)
 				arrayValue := s.Peek().ArrayValuePoint()
 				*arrayValue = append(*arrayValue, b)
-				statuses = []status{StatusComma, StatusEndArray}
+				status = StatusComma | StatusEndArray
 				continue
 			}
 			return nil, errors.New("invalid bool false")
 		case Null:
-			if includeStatus(StatusObjectValue, statuses) {
+			if includeTokenStatus(StatusObjectValue, status) {
 				objectKey := s.Pop().ObjectKeyValue()
 				rootMap := s.Peek().ObjectValue()
 				rootMap[objectKey] = ""
-				statuses = []status{StatusComma, StatusEndObject}
+				status = StatusComma | StatusEndObject
 				continue
 			}
-			if includeStatus(StatusArrayValue, statuses) {
+			if includeTokenStatus(StatusArrayValue, status) {
 				arrayValue := s.Peek().ArrayValuePoint()
 				*arrayValue = append(*arrayValue, "")
-				statuses = []status{StatusComma, StatusEndArray}
+				status = StatusComma | StatusEndArray
 				continue
 			}
 			return nil, errors.New("invalid null")
 
 		case SepComma:
 			//,
-			if notIncludeStatus(StatusComma, statuses) {
+			if !includeTokenStatus(StatusComma, status) {
 				return nil, errors.New("missing ':'")
 			} else {
 				// 逗号之前可能是 '}',下一个状态则是 StatusObjectKey
-				if includeStatus(StatusEndObject, statuses) {
-					statuses = []status{StatusObjectKey}
+				if includeTokenStatus(StatusEndObject, status) {
+					status = StatusObjectKey
 					continue
 				}
 				// 逗号之前可能是 ']',下一个状态则可能是
-				if includeStatus(StatusEndArray, statuses) {
-					statuses = []status{StatusArrayValue, StatusBeginArray, StatusBeginObject}
+				if includeTokenStatus(StatusEndArray, status) {
+					status = StatusArrayValue | StatusBeginArray | StatusBeginObject
 					continue
 				}
 			}
 
 		case SepColon:
 			//:
-			if notIncludeStatus(StatusColon, statuses) {
+			if !includeTokenStatus(StatusColon, status) {
 				return nil, errors.New("missing ','")
 			} else {
-				statuses = []status{StatusObjectValue, StatusBeginObject, StatusBeginArray}
+				status = StatusObjectValue | StatusBeginObject | StatusBeginArray
 			}
 		case BeginArray:
-			if includeStatus(StatusBeginArray, statuses) {
+			if includeTokenStatus(StatusBeginArray, status) {
 				arr := make([]interface{}, 0)
 				stackValue := NewArrayPoint(&arr)
 				s.Push(stackValue)
-				statuses = []status{StatusArrayValue, StatusBeginArray, StatusBeginObject, StatusEndArray}
+				status = StatusArrayValue | StatusBeginArray | StatusBeginObject | StatusEndArray
 				continue
 			}
 		case EndArray:
-			if notIncludeStatus(StatusEndArray, statuses) {
+			if !includeTokenStatus(StatusEndArray, status) {
 				return nil, errors.New("invalid ']'")
 			}
-			if includeStatus(StatusEndArray, statuses) {
-				root := s.Pop().ArrayValuePoint()
-				if s.IsEmpty() {
-					array := NewArrayPoint(root)
-					s.Push(array)
-					continue
-				}
-
-				stackType := s.Peek().StackType()
-				// 如果栈顶还有一个 key
-				if stackType == ObjectKey {
-					keyValue := s.Pop().ObjectKeyValue()
-					objectValue := s.Peek().ObjectValue()
-					objectValue[keyValue] = root
-					statuses = []status{StatusComma, StatusEndObject}
-					continue
-				}
-
-				// 如果栈顶还有一个 [
-				if stackType == Array {
-					arrayValuePoint := s.Peek().ArrayValuePoint()
-					*arrayValuePoint = append(*arrayValuePoint, root)
-					statuses = []status{StatusComma, StatusEndArray}
-					continue
-				}
-
+			root := s.Pop().ArrayValuePoint()
+			if s.IsEmpty() {
+				array := NewArrayPoint(root)
+				s.Push(array)
+				continue
 			}
+
+			stackType := s.Peek().StackType()
+			// 如果栈顶还有一个 key
+			if stackType == ObjectKey {
+				keyValue := s.Pop().ObjectKeyValue()
+				objectValue := s.Peek().ObjectValue()
+				objectValue[keyValue] = root
+				status = StatusComma | StatusEndObject
+				continue
+			}
+
+			// 如果栈顶还有一个 [
+			if stackType == Array {
+				arrayValuePoint := s.Peek().ArrayValuePoint()
+				*arrayValuePoint = append(*arrayValuePoint, root)
+				status = StatusComma | StatusEndArray
+				continue
+			}
+
 			return nil, errors.New("miss ']'")
 
 		case EndObject:
-			if notIncludeStatus(StatusEndObject, statuses) {
+			if !includeTokenStatus(StatusEndObject, status) {
 				return nil, errors.New("invalid '}'")
 			}
 			root := s.Pop().ObjectValue()
@@ -233,14 +231,14 @@ func Parse(reader *TokenReader) (interface{}, error) {
 				objectValue := s.Peek().ObjectValue()
 				objectValue[keyValue] = root
 				// 下一个可能是 ',' 和 '}'
-				statuses = []status{StatusComma, StatusEndObject}
+				status = StatusComma | StatusEndObject
 				continue
 			}
 			// 如果栈顶还有一个 [
 			if stackType == Array {
 				arrayValuePoint := s.Peek().ArrayValuePoint()
 				*arrayValuePoint = append(*arrayValuePoint, root)
-				statuses = []status{StatusComma, StatusEndArray}
+				status = StatusComma | StatusEndArray
 				continue
 			}
 
@@ -257,20 +255,6 @@ func Parse(reader *TokenReader) (interface{}, error) {
 	}
 }
 
-func includeStatus(status status, statuses []status) bool {
-	for _, s := range statuses {
-		if status == s {
-			return true
-		}
-	}
-	return false
-}
-
-func notIncludeStatus(status status, statuses []status) bool {
-	for _, s := range statuses {
-		if status == s {
-			return false
-		}
-	}
-	return true
+func includeTokenStatus(current, target status) bool {
+	return (current & target) > 0
 }
