@@ -3,7 +3,7 @@ package xjson
 import (
 	"errors"
 	"fmt"
-	"github.com/crossoverJie/gscript/syntax"
+	"github.com/crossoverJie/gscript"
 	"strconv"
 	"strings"
 )
@@ -122,8 +122,8 @@ func getWithRoot(root map[string]interface{}, grammar string) Result {
 	}
 }
 
-func GetWithArithmetic(json, arithmetic string) Result {
-	tokenize, err := ArithmeticTokenize(arithmetic)
+func GetWithArithmetic(json, grammar string) Result {
+	tokenize, err := ArithmeticTokenize(grammar)
 	if err != nil {
 		return buildEmptyResult()
 	}
@@ -153,8 +153,8 @@ func GetWithArithmetic(json, arithmetic string) Result {
 				return buildEmptyResult()
 			}
 		case ArithmeticEOF:
-			builder.WriteString("\n")
-			r := syntax.ArithmeticOperators(builder.String())
+			builder.WriteString(";")
+			r := gscript.ArithmeticOperators(builder.String())
 			switch r.(type) {
 			case int:
 				return Result{
@@ -166,9 +166,14 @@ func GetWithArithmetic(json, arithmetic string) Result {
 					Token:  Float,
 					object: r,
 				}
+			case bool:
+				return Result{
+					Token:  Bool,
+					object: r,
+				}
 			}
 		default:
-			builder.WriteString(read.Value)
+			builder.WriteString(" " + read.Value)
 		}
 	}
 
