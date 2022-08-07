@@ -27,6 +27,16 @@ Even perform arithmetic operations with `JSON`.
 str := `{"people":[{"bob":{"age":10}},{"alice":{"age":10}}]}`
 age := xjson.GetWithArithmetic(str, "people[0].bob.age + people[1].alice.age")
 assert.Equal(t, age.Int(), 20)
+
+grammar := `
+if ((people[0].bob.age + people[1].alice.age)==20){
+	return true
+}else{
+	return 20
+}
+`
+ret := xjson.GetWithArithmetic(str, grammar)
+assert.Equal(t, ret.Bool(), true)
 ```
 
 Installing:
