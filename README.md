@@ -92,7 +92,7 @@ The tow syntax work together to obtain complex nested `JSON` data.
 
 # Arithmetic Syntax
 
-`xjson` supports `+ - * / ()` arithmetic operations.
+`xjson` supports `+ - * / % ()` arithmetic operations.
 
 ```go
 str := `{"name":"bob", "age":10,"magic":10.1, "score":{"math":[1,2]}}`
