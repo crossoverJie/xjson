@@ -6,7 +6,7 @@ test:
 	go tool cover -html=${COVER_FILE}
 	rm -rf ${COVER_FILE}
 
-VERSION=v0.0.5
+VERSION=v0.0.6
 git-tag:
 	git tag $(VERSION); \
 	git push origin $(VERSION);
