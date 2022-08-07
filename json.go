@@ -153,7 +153,6 @@ func GetWithArithmetic(json, grammar string) Result {
 				return buildEmptyResult()
 			}
 		case ArithmeticEOF:
-			builder.WriteString(";")
 			r := gscript.ArithmeticOperators(builder.String())
 			switch r.(type) {
 			case int:

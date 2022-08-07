@@ -56,9 +56,9 @@ func TestGetWithArithmetic(t *testing.T) {
 
 	grammar := `
 if ((people[0].bob.age + people[1].alice.age)==20){
-	return 10+10;
+	return 10+10
 }else{
-	return 20;
+	return 20
 }
 `
 	ret := GetWithArithmetic(str, grammar)
@@ -66,9 +66,9 @@ if ((people[0].bob.age + people[1].alice.age)==20){
 
 	grammar = `
 if ((people[0].bob.age + people[1].alice.age)==20){
-	return true;
+	return true
 }else{
-	return 20;
+	return 20
 }
 `
 	ret = GetWithArithmetic(str, grammar)
@@ -76,9 +76,9 @@ if ((people[0].bob.age + people[1].alice.age)==20){
 
 	grammar = `
 if ((people[0].bob.age + people[1].alice.age)!=20){
-	return true;
+	return true
 }else{
-	return false;
+	return false
 }
 `
 	ret = GetWithArithmetic(str, grammar)
