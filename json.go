@@ -358,6 +358,9 @@ func covertSlice(d *[]interface{}) []interface{} {
 func (r Result) Exists() bool {
 	return r.object != nil
 }
+func (r Result) Raw() interface{} {
+	return r.object
+}
 
 func buildEmptyResult() Result {
 	return Result{}
