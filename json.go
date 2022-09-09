@@ -3,7 +3,6 @@ package xjson
 import (
 	"errors"
 	"fmt"
-	"github.com/crossoverJie/gscript"
 	"strconv"
 	"strings"
 )
@@ -122,62 +121,62 @@ func getWithRoot(root map[string]interface{}, grammar string) Result {
 	}
 }
 
-func GetWithArithmetic(json, grammar string) Result {
-	tokenize, err := ArithmeticTokenize(grammar)
-	if err != nil {
-		return buildEmptyResult()
-	}
-
-	decode, err := Decode(json)
-	if err != nil {
-		return buildEmptyResult()
-	}
-	root, ok := decode.(map[string]interface{})
-	if !ok {
-		return buildEmptyResult()
-	}
-
-	reader := NewArithmeticTokenReader(tokenize)
-	var builder strings.Builder
-	for {
-		read := reader.Read()
-		switch read.T {
-		case Identifier:
-			result := getWithRoot(root, read.Value)
-			switch result.Token {
-			case Number:
-				builder.WriteString(fmt.Sprintf("%d", result.Int()))
-			case Float:
-				builder.WriteString(fmt.Sprintf("%f", result.Float()))
-			default:
-				return buildEmptyResult()
-			}
-		case ArithmeticEOF:
-			r := gscript.ArithmeticOperators(builder.String())
-			switch r.(type) {
-			case int:
-				return Result{
-					Token:  Number,
-					object: r,
-				}
-			case float64:
-				return Result{
-					Token:  Float,
-					object: r,
-				}
-			case bool:
-				return Result{
-					Token:  Bool,
-					object: r,
-				}
-			}
-		default:
-			builder.WriteString(" " + read.Value)
-		}
-	}
-
-	//return Result{}
-}
+//func GetWithArithmetic(json, grammar string) Result {
+//	tokenize, err := ArithmeticTokenize(grammar)
+//	if err != nil {
+//		return buildEmptyResult()
+//	}
+//
+//	decode, err := Decode(json)
+//	if err != nil {
+//		return buildEmptyResult()
+//	}
+//	root, ok := decode.(map[string]interface{})
+//	if !ok {
+//		return buildEmptyResult()
+//	}
+//
+//	reader := NewArithmeticTokenReader(tokenize)
+//	var builder strings.Builder
+//	for {
+//		read := reader.Read()
+//		switch read.T {
+//		case Identifier:
+//			result := getWithRoot(root, read.Value)
+//			switch result.Token {
+//			case Number:
+//				builder.WriteString(fmt.Sprintf("%d", result.Int()))
+//			case Float:
+//				builder.WriteString(fmt.Sprintf("%f", result.Float()))
+//			default:
+//				return buildEmptyResult()
+//			}
+//		case ArithmeticEOF:
+//			r := gscript.ArithmeticOperators(builder.String())
+//			switch r.(type) {
+//			case int:
+//				return Result{
+//					Token:  Number,
+//					object: r,
+//				}
+//			case float64:
+//				return Result{
+//					Token:  Float,
+//					object: r,
+//				}
+//			case bool:
+//				return Result{
+//					Token:  Bool,
+//					object: r,
+//				}
+//			}
+//		default:
+//			builder.WriteString(" " + read.Value)
+//		}
+//	}
+//
+//	//return Result{}
+//}
 
 // String return result of string
 func (r Result) String() string {
